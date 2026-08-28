@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal de Dados SESAU</title>
+    <style>
+      :root {
+        --primary-dark: #12346b;
+        --primary-light: #1e73be;
+        --primary-soft: #eef5fc;
+        --accent-blue: #4a8eff;
+        --accent-orange: #db400a;
+        --success: #18794e;
+        --success-bg: #edf8f2;
+        --warning: #9a6700;
+        --warning-bg: #fff8e6;
+        --danger: #b42318;
+        --danger-bg: #fff1f0;
+        --body-bg: #f4f4f4;
+        --surface: #ffffff;
+        --surface-soft: #f8fafc;
+        --border: #e3e8ef;
+        --border-strong: #d4dce6;
+        --text: #1f2937;
+        --muted: #667085;
+        --muted-2: #98a2b3;
+        --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+        --radius-sm: 8px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --header-h: 64px;
+        --sidebar-w: 232px;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: var(--body-bg);
+        color: var(--text);
+        font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input, select, textarea { font: inherit; }
+      button { cursor: pointer; }
+      img { max-width: 100%; }
+      .hidden { display: none !important; }
+
+      .top-accent { height: 4px; background: linear-gradient(90deg, var(--primary-dark), var(--primary-light) 70%, var(--accent-blue)); }
+
+      .app-shell { min-height: 100vh; }
+      .header {
+        position: fixed; top: 4px; left: 0; right: 0; height: var(--header-h);
+        background: rgba(255,255,255,0.98); border-bottom: 1px solid var(--border);
+        display: grid; grid-template-columns: var(--sidebar-w) minmax(320px, 1fr) auto;
+        align-items: center; z-index: 20;
+      }
+      .brand {
+        display: flex; align-items: center; gap: 10px; height: 100%; padding: 0 18px;
+        border-right: 1px solid var(--border);
+      }
+      .brand-mark {
+        width: 34px; height: 34px; background: var(--primary-dark); color: #fff;
+        border-radius: 8px; display: grid; place-items: center;
+      }
+      .brand-copy { line-height: 1.1; }
+      .brand-title { font-size: 15px; font-weight: 800; color: var(--primary-dark); }
+      .brand-sub { font-size: 11px; color: var(--muted); }
+      .header-search { padding: 0 28px; }
+      .global-search {
+        width: min(820px, 100%); height: 38px; border-radius: 8px; border: 1px solid var(--border);
+        background: var(--surface-soft); display: flex; align-items: center; gap: 8px; padding: 0 10px;
+      }
+      .global-search input {
+        border: 0; background: transparent; outline: none; color: var(--text); width: 100%;
+      }
+      .global-search input::placeholder { color: var(--muted-2); }
+      .header-actions { display: flex; align-items: center; gap: 6px; padding-right: 14px; }
+      .icon-btn {
+        width: 36px; height: 36px; border: 1px solid transparent; border-radius: 8px; background: transparent;
+        display: grid; place-items: center; color: var(--muted); position: relative;
+      }
+      .icon-btn:hover { background: var(--surface-soft); border-color: var(--border); color: var(--primary-light); }
+      .notification-dot {
+        position: absolute; right: 8px; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-orange);
+      }
+      .profile {
+        display: flex; align-items: center; gap: 9px; padding: 5px 8px; border-radius: 8px; border: 1px solid transparent;
+      }
+      .profile:hover { background: var(--surface-soft); border-color: var(--border); }
+      .avatar {
+        width: 32px; height: 32px; border-radius: 50%; background: #e8f1fb; color: var(--primary-dark);
+        display: grid; place-items: center; font-weight: 800; font-size: 12px;
+      }
+      .profile-copy { line-height: 1.15; }
+      .profile-name { font-size: 13px; font-weight: 700; }
+      .profile-role { font-size: 11px; color: var(--muted); }
+
+      .sidebar {
+        position: fixed; left: 0; top: calc(var(--header-h) + 4px); bottom: 0; width: var(--sidebar-w);
+        background: #fff; border-right: 1px solid var(--border); padding: 18px 12px; overflow-y: auto;
+      }
+      .nav-group { margin-bottom: 22px; }
+      .nav-label {
+        font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted-2);
+        padding: 0 10px 8px;
+      }
+      .nav-item {
+        width: 100%; border: 0; background: transparent; border-radius: 8px; padding: 9px 10px; display: flex; align-items: center;
+        gap: 10px; color: #475467; font-weight: 600; text-align: left; margin: 2px 0; position: relative;
+      }
+      .nav-item:hover { background: #f8fafc; color: var(--primary-dark); }
+      .nav-item.active { background: #eef5fc; color: var(--primary-dark); }
+      .nav-item.active::before {
+        content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: var(--primary-light);
+      }
+      .nav-count { margin-left: auto; font-size: 11px; color: var(--muted-2); }
+      .sidebar-footer {
+        margin-top: 16px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 8px; padding: 12px;
+      }
+      .sidebar-footer strong { display: block; color: var(--primary-dark); font-size: 12px; }
+      .sidebar-footer span { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+      .main { margin-left: var(--sidebar-w); padding-top: calc(var(--header-h) + 4px); min-height: 100vh; }
+      .content { max-width: 1440px; margin: 0 auto; padding: 30px 34px 42px; }
+      .page { display: none; }
+      .page.active { display: block; }
+      .eyebrow {
+        font-size: 11px; letter-spacing: .08em; font-weight: 800; text-transform: uppercase; color: var(--primary-light); margin-bottom: 8px;
+      }
+      h1, h2, h3, h4, p { margin-top: 0; }
+      h1 { font-size: 28px; line-height: 1.2; color: var(--primary-dark); letter-spacing: -0.025em; margin-bottom: 8px; }
+      h2 { font-size: 22px; color: var(--primary-dark); margin-bottom: 8px; }
+      h3 { font-size: 17px; color: var(--primary-dark); margin-bottom: 6px; }
+      p { color: var(--muted); }
+      .lead { max-width: 780px; }
+      .page-head {
+        display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 24px;
+      }
+      .quick-actions { display: flex; gap: 8px; margin-bottom: 28px; }
+      .btn {
+        border: 1px solid transparent; border-radius: 8px; height: 38px; padding: 0 14px; display: inline-flex; align-items: center;
+        justify-content: center; gap: 7px; font-weight: 700; background: #fff; color: var(--text); transition: 0.18s ease;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn-primary { background: var(--primary-light); color: #fff; border-color: var(--primary-light); }
+      .btn-primary:hover { background: #1765aa; }
+      .btn-dark { background: var(--primary-dark); color: #fff; border-color: var(--primary-dark); }
+      .btn-secondary { border-color: var(--border-strong); background: #fff; color: #344054; }
+      .btn-secondary:hover { border-color: #b8c3d1; background: #fbfcfd; }
+      .btn-ghost { background: transparent; color: var(--primary-light); padding: 0 4px; height: auto; }
+      .btn-sm { height: 32px; padding: 0 10px; font-size: 12px; }
+      .btn-inline { height: 30px; }
+
+      .hero {
+        background: linear-gradient(180deg, #eff7ff, rgba(239,247,255,0)); border: 1px solid var(--border-strong); border-radius: 12px;
+        box-shadow: var(--shadow); padding: 24px 26px; margin-bottom: 28px;
+      }
+      .hero h1 { font-size: clamp(26px, 3vw, 38px); max-width: 760px; }
+      .hero-copy { max-width: 760px; font-size: 15px; color: var(--muted); }
+      .hero .cta-row { display: flex; gap: 12px; margin-top: 18px; }
+
+      .stat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+      .stat-box {
+        background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+      }
+      .stat-box span {
+        display: block; color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+      }
+      .stat-box strong {
+        display: block; margin-top: 5px; color: var(--primary-dark); font-size: 22px;
+      }
+
+      .section { margin-top: 28px; }
+      .section-head {
+        display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px;
+      }
+      .section-head h3 { margin: 0; }
+      .section-head a { color: var(--primary-light); font-weight: 700; font-size: 12px; }
+
+      .secretaria-grid, .system-grid, .area-grid { display: grid; gap: 12px; }
+      .secretaria-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .system-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .area-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+      .card, .secretaria-card, .system-card, .dataset-card, .mini-card {
+        background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow);
+      }
+      .secretaria-card { padding: 16px; cursor: pointer; transition: 0.15s ease; }
+      .secretaria-card:hover { border-color: #aac7e5; transform: translateY(-1px); }
+      .secretaria-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+      .secretaria-sigla { font-size: 12px; font-weight: 800; color: var(--primary-light); letter-spacing: .05em; }
+      .secretaria-name { font-weight: 800; font-size: 16px; color: var(--primary-dark); margin: 6px 0 4px; }
+      .secretaria-description { font-size: 12px; color: var(--muted); }
+      .secretaria-meta { margin-top: 12px; display: flex; justify-content: space-between; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+
+      .system-card { padding: 16px; transition: 0.15s ease; cursor: pointer; }
+      .system-card:hover { border-color: #aac7e5; transform: translateY(-1px); }
+      .system-header { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+      .system-sigla { color: var(--primary-light); font-size: 11px; font-weight: 800; letter-spacing: .05em; }
+      .system-name { font-size: 16px; font-weight: 800; color: var(--primary-dark); margin: 6px 0 4px; }
+      .system-label { color: var(--muted); font-size: 11px; }
+      .meta-list { margin-top: 12px; display: grid; gap: 8px; }
+      .meta-row { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; }
+      .meta-row span:first-child { color: var(--muted); }
+      .meta-row strong { color: var(--text); }
+
+      .area-tile {
+        background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 12px;
+        min-height: 72px; transition: 0.15s ease; cursor: pointer;
+      }
+      .area-tile:hover { border-color: #aac7e5; background: #fbfdff; transform: translateY(-1px); }
+      .area-icon {
+        width: 34px; height: 34px; border-radius: 8px; background: #eef5fc; color: var(--primary-light); display: grid; place-items: center;
+      }
+      .area-title { font-size: 13px; font-weight: 800; color: #344054; }
+      .area-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+      .dataset-list { border: 1px solid var(--border); border-radius: 10px; background: #fff; overflow: hidden; }
+      .dataset-row {
+        display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(180px, .75fr) auto; gap: 18px; align-items: center;
+        padding: 14px 16px; border-bottom: 1px solid var(--border);
+      }
+      .dataset-row:last-child { border-bottom: 0; }
+      .dataset-row:hover { background: #fbfcfe; }
+      .row-title { font-weight: 800; color: #344054; }
+      .row-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+      .tag-row { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+      .tag {
+        display: inline-flex; align-items: center; padding: 4px 7px; border-radius: 999px; background: #f3f7fb; color: var(--primary-dark);
+        border: 1px solid #e3eefb; font-size: 10px; font-weight: 700;
+      }
+      .status-pill {
+        display: inline-flex; align-items: center; gap: 7px; height: 24px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
+      }
+      .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+      .status-ok { background: var(--success-bg); color: var(--success); }
+      .status-warning { background: var(--warning-bg); color: var(--warning); }
+      .status-lock { background: var(--danger-bg); color: var(--danger); }
+      .status-neutral { background: #f2f4f7; color: #475467; }
+      .status-ok .status-dot { background: var(--success); }
+      .status-warning .status-dot { background: var(--warning); }
+      .status-lock .status-dot { background: var(--danger); }
+      .status-neutral .status-dot { background: #667085; }
+
+      .catalog-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 22px; }
+      .filter-panel {
+        background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+      }
+      .filter-panel h4 { margin: 0 0 12px; font-size: 13px; color: var(--primary-dark); }
+      .filter-group { margin-bottom: 16px; }
+      .filter-group label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 800; color: #475467; }
+      .filter-list { display: grid; gap: 8px; }
+      .check-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #475467; }
+      .input, select, textarea {
+        width: 100%; border: 1px solid var(--border-strong); border-radius: 8px; background: #fff; color: var(--text); padding: 9px 10px;
+      }
+      .catalog-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+      .catalog-toolbar .input { flex: 1; }
+      .toolbar-select { max-width: 200px; }
+
+      .knowledge-layout { display: grid; grid-template-columns: 280px 1fr; gap: 14px; }
+      .knowledge-list { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      .knowledge-item { padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
+      .knowledge-item:last-child { border-bottom: 0; }
+      .knowledge-item.active { background: var(--primary-soft); }
+      .knowledge-item strong { display: block; font-size: 12px; color: var(--primary-dark); }
+      .knowledge-item span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+      .info-block {
+        background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 18px;
+      }
+      .info-block h3 { margin-bottom: 8px; }
+      .dictionary-row { display: grid; gap: 10px; margin-top: 12px; }
+      .dictionary-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+      .mini-chip { border: 1px solid var(--border); background: var(--surface-soft); color: #475467; border-radius: 999px; padding: 4px 7px; font-size: 10px; font-weight: 700; }
+
+      .builder-shell {
+        background: #fff; border: 1px solid var(--border); border-radius: 12px;
+        padding: 18px; box-shadow: var(--shadow);
+      }
+      .builder-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+      .dataset-code { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; border: 1px solid #d7eafd; background: #f3f8ff; color: var(--primary-light); font-size: 11px; font-weight: 800; }
+      .stepper { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+      .step { min-width: 92px; padding: 8px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-soft); color: var(--muted); font-size: 11px; font-weight: 700; }
+      .step.active { background: var(--primary-soft); border-color: #aac7e5; color: var(--primary-dark); }
+      .step.done { background: var(--success-bg); border-color: #b7e1cc; color: var(--success); }
+      .builder-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) 300px; gap: 16px; }
+      .builder-main { background: var(--surface-soft); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+      .builder-summary {
+        border-left: 1px solid var(--border); padding-left: 16px; position: relative;
+      }
+      .summary-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+      .summary-item { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: #475467; padding: 9px 0; border-bottom: 1px solid var(--border); }
+      .summary-item:last-child { border-bottom: 0; }
+      .summary-item strong { color: var(--text); }
+      .option-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .option-card {
+        border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 12px; cursor: pointer; transition: 0.15s ease;
+      }
+      .option-card:hover { border-color: #aac7e5; }
+      .option-card.active { border-color: var(--primary-light); background: #f4f9fe; box-shadow: 0 0 0 2px rgba(30, 115, 190, 0.08); }
+      .option-card strong { display: block; color: var(--primary-dark); }
+      .option-card small { color: var(--muted); }
+      .cards-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+      .variable-list { display: grid; gap: 10px; margin-top: 16px; }
+      .variable-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+      .variable-meta { font-size: 12px; color: var(--muted); }
+      .variable-check { display: inline-flex; align-items: center; }
+      .variable-row.selected { border-color: #aac7e5; background: #f7fbff; }
+      .selection-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+      .selection-toolbar .left { display: flex; gap: 8px; flex-wrap: wrap; }
+      .chip-link { background: transparent; border: 0; padding: 0; color: var(--primary-light); font-weight: 700; }
+      .empty-box {
+        text-align: center; padding: 28px; color: var(--muted); background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      }
+      .wizard-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 24px; }
+      .wizard-actions .left, .wizard-actions .right { display: flex; gap: 8px; }
+
+      .thead { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+      .table-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      .table-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; padding: 12px 14px; border-top: 1px solid var(--border); }
+      .table-row:first-child { border-top: 0; }
+      .table-row > div { font-size: 12px; color: #475467; }
+      .table-row strong { color: var(--text); }
+
+      .manual-callout {
+        background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 18px;
+      }
+      .manual-callout strong { color: var(--primary-dark); }
+      .manual-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+      .manual-kpi { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 15px; }
+      .manual-kpi .k-label { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); }
+      .manual-kpi .k-value { font-size: 19px; font-weight: 800; color: var(--primary-dark); margin-top: 4px; }
+      .manual-kpi .k-help { color: var(--muted); font-size: 11px; margin-top: 2px; }
+      .manual-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+      .manual-tab { border: 0; background: transparent; color: var(--muted); padding: 10px 2px 9px; font-weight: 800; font-size: 12px; border-bottom: 2px solid transparent; }
+      .manual-tab.active { color: var(--primary-dark); border-bottom-color: var(--primary-light); }
+
+      .access-shell { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr); gap: 18px; }
+      .auth-panel, .user-panel, .admin-panel, .audit-panel {
+        background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 20px;
+      }
+      .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+      .access-form { display: grid; gap: 12px; }
+      .access-form label { display: block; font-size: 11px; font-weight: 800; color: #475467; margin-bottom: 6px; }
+      .access-checklist { display: grid; gap: 8px; margin-top: 4px; }
+      .access-checklist label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #475467; font-weight: 600; margin: 0; }
+      .access-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+      .system-list { display: flex; flex-wrap: wrap; gap: 8px; }
+      .system-pill { border: 1px solid #d7eafd; background: #f3f8ff; color: var(--primary-dark); border-radius: 999px; padding: 5px 8px; font-size: 11px; font-weight: 700; }
+      .audit-list { display: grid; gap: 10px; }
+      .audit-item { border: 1px solid var(--border); border-radius: 8px; background: var(--surface-soft); padding: 12px; }
+      .audit-item strong { color: var(--primary-dark); }
+      .muted-small { font-size: 11px; color: var(--muted); }
+
+      .link-external { color: var(--primary-light); font-weight: 700; }
+      .link-external::after { content: ' ↗'; }
+
+      @media (max-width: 1100px) {
+        .header { grid-template-columns: var(--sidebar-w) 1fr auto; }
+        .secretaria-grid, .system-grid, .area-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .builder-grid { grid-template-columns: 1fr; }
+        .builder-summary { border-left: 0; padding-left: 0; }
+      }
+      @media (max-width: 860px) {
+        :root { --sidebar-w: 0px; }
+        .sidebar { display: none; }
+        .main { margin-left: 0; }
+        .header { grid-template-columns: 180px 1fr auto; }
+        .header-search { padding: 0 10px; }
+        .profile-copy { display: none; }
+        .content { padding: 24px 18px 36px; }
+        .secretaria-grid, .system-grid, .area-grid, .knowledge-layout, .catalog-layout { grid-template-columns: 1fr; }
+        .stat-strip, .manual-kpis { grid-template-columns: 1fr; }
+        .page-head { flex-direction: column; }
+      }
+
+      .toast {
+        position: fixed; right: 24px; bottom: 24px; z-index: 100; background: #101828; color: #fff; border-radius: 8px; padding: 12px 14px;
+        box-shadow: 0 10px 30px rgba(16,24,40,.25); opacity: 0; transform: translateY(8px); pointer-events: none; transition: 180ms ease;
+      }
+      .toast.show { opacity: 1; transform: none; }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="top-accent"></div>
+      <header class="header">
+        <div class="brand">
+          <div class="brand-mark" id="brandIcon">DB</div>
+          <div class="brand-copy">
+            <div class="brand-title">Portal de Dados</div>
+            <div class="brand-sub">SESAU</div>
+          </div>
+        </div>
+
+        <div class="header-search">
+          <div class="global-search" role="search">
+            <span id="globalSearchIcon">⌕</span>
+            <input id="globalSearchInput" type="text" placeholder="Buscar secretaria, sistema, conjunto ou variável..." aria-label="Buscar dados" />
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="icon-btn" id="helpBtn" aria-label="Ajuda" title="Ajuda">?</button>
+          <button class="icon-btn" id="notificationBtn" aria-label="Notificações" title="Notificações">
+            <span class="notification-dot"></span>
+          </button>
+          <div class="profile" aria-label="Perfil do usuário">
+            <div class="avatar">AR</div>
+            <div class="profile-copy">
+              <div class="profile-name">Ana Ribeiro</div>
+              <div class="profile-role">Analista</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <aside class="sidebar">
+        <div class="nav-group">
+          <div class="nav-label">Portal</div>
+          <button class="nav-item active" data-page="home"><span>⌂</span><span>Home</span></button>
+          <button class="nav-item" data-page="catalog"><span>▣</span><span>Catálogo</span></button>
+          <button class="nav-item" data-page="builder"><span>＋</span><span>Criar conjunto</span></button>
+          <button class="nav-item" data-page="dictionary"><span>▤</span><span>Dicionário</span></button>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Minhas atividades</div>
+          <button class="nav-item" data-page="consultas"><span>◫</span><span>Minhas consultas</span></button>
+          <button class="nav-item" data-page="extractions"><span>↓</span><span>Minhas extrações</span></button>
+          <button class="nav-item" data-page="disponibilizacoes"><span>✓</span><span>Minhas disponibilizações</span></button>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Governança</div>
+          <button class="nav-item" data-page="access-control"><span>🔐</span><span>Controle de acesso</span></button>
+          <button class="nav-item" data-page="governanca"><span>🛡</span><span>Governança & LGPD</span></button>
+          <button class="nav-item" data-page="manual-load"><span>⇪</span><span>Carga manual</span></button>
+        </div>
+
+        <div class="sidebar-footer">
+          <strong>Arquitetura</strong>
+          <span>Sistemas de informação → Data Lake → Portal → Consumo</span>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="content">
+          <section class="page active" id="page-home"></section>
+          <section class="page" id="page-catalog"></section>
+          <section class="page" id="page-builder"></section>
+          <section class="page" id="page-dictionary"></section>
+          <section class="page" id="page-consultas"></section>
+          <section class="page" id="page-extractions"></section>
+          <section class="page" id="page-disponibilizacoes"></section>
+          <section class="page" id="page-access-control"></section>
+          <section class="page" id="page-governanca"></section>
+          <section class="page" id="page-manual-load"></section>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const state = {
+        currentPage: 'home',
+        selectedSecretaria: null,
+        selectedSistema: null,
+        selectedConjunto: null,
+        selectedVariables: [],
+        filters: { municipio: 'Todos', regiao: 'Todas', situacao: 'Todas' },
+        periodo: { mode: 'historico', start: '2024-01-01', end: '2026-12-31' },
+        atualizacao: 'Diária',
+        destino: 'Power BI',
+        builderStepIndex: 0,
+        builderComplete: false,
+        lastSearch: '',
+        disponibilizacoes: [
+          {
+            nome: 'SINAN — Doenças e Agravos',
+            secretaria: 'SEVS',
+            sistema: 'SINAN',
+            data: '12/08/2026',
+            frequencia: 'Diária',
+            formato: 'Power BI',
+            destino: 'Power BI',
+            status: 'Ativa',
+            ultimaAtualizacao: 'Hoje 04:15'
+          },
+          {
+            nome: 'e-SUS APS — Atendimentos',
+            secretaria: 'SEAB',
+            sistema: 'e-SUS APS',
+            data: '09/08/2026',
+            frequencia: 'Diária',
+            formato: 'CSV',
+            destino: 'CSV',
+            status: 'Pendente',
+            ultimaAtualizacao: 'Ontem 18:20'
+          }
+        ],
+        consultas: [
+          { nome: 'Casos de dengue por município', dataset: 'SINAN', period: 'Jan/2026', registros: '23.480', status: 'Disponível' },
+          { nome: 'Nascimentos por faixa etária', dataset: 'SINASC', period: '2025', registros: '5.120', status: 'Disponível' }
+        ]
+      };
+
+      const accessControlData = {
+        currentUser: null,
+        users: [
+          {
+            id: 1,
+            nome: 'Ana Ribeiro',
+            email: 'ana.ribeiro@sesau.pe.gov.br',
+            perfil: 'Administrador',
+            secretaria: 'SEVS',
+            cargo: 'Coordenadora de Dados',
+            status: 'Aprovado',
+            acessos: ['Portal SESAU', 'SINAN', 'SIM', 'SINASC'],
+            ultimoAcesso: 'Hoje 09:15'
+          },
+          {
+            id: 2,
+            nome: 'Carlos Silva',
+            email: 'carlos.silva@sesau.pe.gov.br',
+            perfil: 'Gestor',
+            secretaria: 'SEVS',
+            cargo: 'Analista de Vigilância',
+            status: 'Em análise',
+            acessos: ['Portal SESAU', 'SINAN'],
+            ultimoAcesso: 'Hoje 08:45'
+          },
+          {
+            id: 3,
+            nome: 'Marina Costa',
+            email: 'marina.costa@sesau.pe.gov.br',
+            perfil: 'Usuário',
+            secretaria: 'SEAB',
+            cargo: 'Enfermeira de Atenção Básica',
+            status: 'Pendente',
+            acessos: [],
+            ultimoAcesso: 'Nunca'
+          },
+          {
+            id: 4,
+            nome: 'Pedro Almeida',
+            email: 'pedro.almeida@sesau.pe.gov.br',
+            perfil: 'Usuário',
+            secretaria: 'SEAF',
+            cargo: 'Analista de Administração',
+            status: 'Rejeitado',
+            acessos: [],
+            ultimoAcesso: 'Sem acesso'
+          }
+        ],
+        logs: [
+          { quando: 'Hoje 09:15', usuario: 'Ana Ribeiro', acao: 'Aprovou acesso de Carlos Silva', tipo: 'Autorização' },
+          { quando: 'Ontem 17:10', usuario: 'Diretoria', acao: 'Rejeitou cadastro de Pedro Almeida', tipo: 'Decisão' },
+          { quando: 'Ontem 14:30', usuario: 'Ana Ribeiro', acao: 'Solicitou revisão de permissões de SEAB', tipo: 'Governança' }
+        ]
+      };
+
+      const secretarias = [
+        {
+          sigla: 'SEAB',
+          nome: 'Secretaria Executiva de Atenção Básica',
+          descricao: 'Dados de atenção primária e monitoramento do cuidado básico.',
+          sistemas: [
+            { sigla: 'e-SUS APS', nome: 'e-SUS APS', descricao: 'Atenção primária e registros de atendimentos.', secretaria: 'SEAB', status: 'Integrado', ultimaAtualizacao: 'Hoje 06:20', periodicidade: 'Diária', periodoDisponivel: '2021 – Atual', conjuntos: 12, variaveis: 318, acesso: 'Institucional', demonstrativo: false },
+            { sigla: 'SISVAN', nome: 'SISVAN', descricao: 'Vigilância nutricional e acompanhamento alimentar.', secretaria: 'SEAB', status: 'Integrado', ultimaAtualizacao: 'Ontem 20:15', periodicidade: 'Mensal', periodoDisponivel: '2019 – Atual', conjuntos: 8, variaveis: 221, acesso: 'Institucional', demonstrativo: false },
+            { sigla: 'RECIFE MONITORA', nome: 'Recife Monitora', descricao: 'Indicadores e monitoramento de indicadores estratégicos.', secretaria: 'SEAB', status: 'Em integração', ultimaAtualizacao: 'Semanal', periodicidade: 'Semanal', periodoDisponivel: '2022 – Atual', conjuntos: 6, variaveis: 143, acesso: 'Institucional', demonstrativo: false }
+          ]
+        },
+        {
+          sigla: 'SEAF',
+          nome: 'Secretaria Executiva de Administração e Finanças',
+          descricao: 'Dados de execução financeira, licitações e contratos municipais.',
+          sistemas: [
+            { sigla: 'SIPAE', nome: 'SIPAE', descricao: 'Execução financeira e acompanhamento orçamentário.', secretaria: 'SEAF', status: 'Integrado', ultimaAtualizacao: 'Hoje 07:10', periodicidade: 'Mensal', periodoDisponivel: '2018 – Atual', conjuntos: 10, variaveis: 260, acesso: 'Institucional', demonstrativo: false },
+            { sigla: 'LICITAÇÕES', nome: 'Sistemas de Licitações e Contratos', descricao: 'Contratos e processo licitatório da gestão municipal.', secretaria: 'SEAF', status: 'Em integração', ultimaAtualizacao: '2 dias atrás', periodicidade: 'Semanal', periodoDisponivel: '2020 – Atual', conjuntos: 7, variaveis: 184, acesso: 'Institucional', demonstrativo: false }
+          ]
+        },
+        {
+          sigla: 'SECOGE',
+          nome: 'Secretaria Executiva de Coordenação Geral',
+          descricao: 'Dados de gestão institucional e indicadores de coordenação setorial.',
+          sistemas: [
+            { sigla: 'PAINEL', nome: 'Painel Integrado de Gestão', descricao: 'Sistema demonstrativo para apresentação da coordenação institucional.', secretaria: 'SECOGE', status: 'Demonstrativo', ultimaAtualizacao: 'Demonstrativo', periodicidade: 'Mensal', periodoDisponivel: '2023 – Atual', conjuntos: 5, variaveis: 96, acesso: 'Institucional', demonstrativo: true }
+          ]
+        },
+        {
+          sigla: 'SEGTES',
+          nome: 'Secretaria Executiva de Gestão do Trabalho e Educação na Saúde',
+          descricao: 'Dados de força de trabalho, educação e formação em saúde.',
+          sistemas: [
+            { sigla: 'FORCA', nome: 'Gestão da Força de Trabalho em Saúde', descricao: 'Sistema demonstrativo de gestão de profissionais e educação em saúde.', secretaria: 'SEGTES', status: 'Demonstrativo', ultimaAtualizacao: 'Demonstrativo', periodicidade: 'Mensal', periodoDisponivel: '2022 – Atual', conjuntos: 4, variaveis: 88, acesso: 'Institucional', demonstrativo: true }
+          ]
+        },
+        {
+          sigla: 'SEVS',
+          nome: 'Secretaria Executiva de Vigilância em Saúde',
+          descricao: 'Dados epidemiológicos, vigilância e registros de eventos em saúde pública.',
+          sistemas: [
+            { sigla: 'SINAN', nome: 'SINAN', descricao: 'Sistema de Informação de Agravos de Notificação.', secretaria: 'SEVS', status: 'Integrado', ultimaAtualizacao: 'Hoje 04:15', periodicidade: 'Diária', periodoDisponivel: '2021 – Atual', conjuntos: 18, variaveis: 840, acesso: 'Institucional', demonstrativo: false },
+            { sigla: 'SIM', nome: 'SIM', descricao: 'Sistema de Informação sobre Mortalidade.', secretaria: 'SEVS', status: 'Integrado', ultimaAtualizacao: 'Hoje 03:20', periodicidade: 'Mensal', periodoDisponivel: '2018 – Atual', conjuntos: 7, variaveis: 510, acesso: 'Institucional', demonstrativo: false },
+            { sigla: 'SINASC', nome: 'SINASC', descricao: 'Sistema de Informações sobre Nascidos Vivos.', secretaria: 'SEVS', status: 'Integrado', ultimaAtualizacao: 'Hoje 02:40', periodicidade: 'Mensal', periodoDisponivel: '2019 – Atual', conjuntos: 9, variaveis: 420, acesso: 'Institucional', demonstrativo: false },
+            { sigla: 'SI-PNI', nome: 'SI-PNI', descricao: 'Sistema de imunização e vigilância de doenças preventivas.', secretaria: 'SEVS', status: 'Em integração', ultimaAtualizacao: '3 dias atrás', periodicidade: 'Semanal', periodoDisponivel: '2020 – Atual', conjuntos: 6, variaveis: 255, acesso: 'Institucional', demonstrativo: false },
+            { sigla: 'CIEVS', nome: 'CIEVS', descricao: 'Cadastro de eventos e vigilância sentinela.', secretaria: 'SEVS', status: 'Integrado', ultimaAtualizacao: 'Hoje 01:10', periodicidade: 'Diária', periodoDisponivel: '2020 – Atual', conjuntos: 5, variaveis: 170, acesso: 'Institucional', demonstrativo: false }
+          ]
+        },
+        {
+          sigla: 'SEINFRA',
+          nome: 'Secretaria Executiva de Infraestrutura',
+          descricao: 'Dados da rede física e estruturas de atendimento em saúde.',
+          sistemas: [
+            { sigla: 'REDE', nome: 'Cadastro da Rede Física de Saúde', descricao: 'Sistema demonstrativo para infraestrutura e unidades de saúde.', secretaria: 'SEINFRA', status: 'Demonstrativo', ultimaAtualizacao: 'Demonstrativo', periodicidade: 'Mensal', periodoDisponivel: '2021 – Atual', conjuntos: 5, variaveis: 110, acesso: 'Institucional', demonstrativo: true }
+          ]
+        }
+      ];
+
+      const conjuntosPorSistema = {
+        'e-SUS APS': [
+          { id: 'e-sus_atendimentos', nome: 'Atendimentos da Atenção Primária', descricao: 'Atendimentos por unidade, profissional, faixa etária e motivo.', origem: 'e-SUS APS', periodoDisponivel: '2021 - Atual', periodicidade: 'Diária', statusIntegracao: 'Automatizada', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Município', tecnico: 'ID_MUNICIPIO', tipo: 'Texto', formato: 'Texto', sistema: 'e-SUS APS', acesso: 'Institucional', descricao: 'Município de referência do atendimento.' },
+            { nome: 'Unidade', tecnico: 'UNIDADE', tipo: 'Texto', formato: 'Texto', sistema: 'e-SUS APS', acesso: 'Institucional', descricao: 'Unidade de saúde responsável.' },
+            { nome: 'Data de Atendimento', tecnico: 'DATA_ATENDIMENTO', tipo: 'Data', formato: 'Data', sistema: 'e-SUS APS', acesso: 'Institucional', descricao: 'Data do atendimento realizado.' },
+            { nome: 'Faixa Etária', tecnico: 'FAIXA_ETARIA', tipo: 'Categoria', formato: 'Texto', sistema: 'e-SUS APS', acesso: 'Institucional', descricao: 'Agrupamento etário do usuário.' },
+            { nome: 'Motivo da Consulta', tecnico: 'MOTIVO_CONSULTA', tipo: 'Texto', formato: 'Texto', sistema: 'e-SUS APS', acesso: 'Institucional', descricao: 'Motivo principal de consulta.' }
+          ] }
+        ],
+        'SINAN': [
+          { id: 'sinan_doencas_agravos', nome: 'Doenças e Agravos', descricao: 'Casos notificados, agravos e registros de acompanhamento no SINAN.', origem: 'SINAN', periodoDisponivel: '2021 - Atual', periodicidade: 'Diária', statusIntegracao: 'Automatizada', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Município', tecnico: 'ID_MUNICIPIO', tipo: 'Texto', formato: 'Texto', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Município de residência do caso.' },
+            { nome: 'Data de Notificação', tecnico: 'DT_NOTIFICACAO', tipo: 'Data', formato: 'Data', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Data em que o caso foi notificado.' },
+            { nome: 'Agravo', tecnico: 'AGRAVO', tipo: 'Texto', formato: 'Texto', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Agravo registrado no caso.' },
+            { nome: 'Evolução', tecnico: 'EVOLUCAO', tipo: 'Texto', formato: 'Texto', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Evolução do caso.' },
+            { nome: 'Faixa Etária', tecnico: 'FAIXA_ETARIA', tipo: 'Categoria', formato: 'Texto', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Faixa etária do paciente.' }
+          ] },
+          { id: 'sinan_investigacoes', nome: 'Investigações', descricao: 'Investigações epidemiológicas relacionadas aos agravos notificáveis.', origem: 'SINAN', periodoDisponivel: '2020 - Atual', periodicidade: 'Semanal', statusIntegracao: 'Automatizada', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Investigação', tecnico: 'INVESTIGACAO', tipo: 'Texto', formato: 'Texto', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Tipo de investigação conduzida.' },
+            { nome: 'Data da Investigação', tecnico: 'DT_INVESTIGACAO', tipo: 'Data', formato: 'Data', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Data da investigação do caso.' },
+            { nome: 'Classificação Final', tecnico: 'CLASSIFICACAO_FINAL', tipo: 'Texto', formato: 'Texto', sistema: 'SINAN', acesso: 'Institucional', descricao: 'Classificação final do caso.' }
+          ] }
+        ],
+        'SIM': [
+          { id: 'sim_mortalidade', nome: 'Conjunto de Mortalidade', descricao: 'Óbitos por causa básica, município e faixa etária.', origem: 'SIM', periodoDisponivel: '2018 - Atual', periodicidade: 'Mensal', statusIntegracao: 'Automatizada', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Município', tecnico: 'MUNICIPIO', tipo: 'Texto', formato: 'Texto', sistema: 'SIM', acesso: 'Institucional', descricao: 'Município de residência do óbito.' },
+            { nome: 'Causa Básica', tecnico: 'CAUSA_BASICA', tipo: 'Texto', formato: 'Texto', sistema: 'SIM', acesso: 'Institucional', descricao: 'Causa básica do óbito.' },
+            { nome: 'Sexo', tecnico: 'SEXO', tipo: 'Categoria', formato: 'Texto', sistema: 'SIM', acesso: 'Institucional', descricao: 'Sexo do indivíduo falecido.' },
+            { nome: 'Faixa Etária', tecnico: 'FAIXA_ETARIA', tipo: 'Categoria', formato: 'Texto', sistema: 'SIM', acesso: 'Institucional', descricao: 'Faixa etária do falecido.' }
+          ] }
+        ],
+        'SINASC': [
+          { id: 'sinasc_nascidos_vivos', nome: 'Nascidos Vivos', descricao: 'Informações do nascimento, parto, mãe e recém-nascido.', origem: 'SINASC', periodoDisponivel: '2019 - Atual', periodicidade: 'Mensal', statusIntegracao: 'Automatizada', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Data de Nascimento', tecnico: 'DT_NASCIMENTO', tipo: 'Data', formato: 'Data', sistema: 'SINASC', acesso: 'Institucional', descricao: 'Data do nascimento.' },
+            { nome: 'Peso ao Nascer', tecnico: 'PESO_NASCIMENTO', tipo: 'Número', formato: 'Decimal', sistema: 'SINASC', acesso: 'Institucional', descricao: 'Peso ao nascer do bebê.' },
+            { nome: 'Tipo de Parto', tecnico: 'TIPO_PARTO', tipo: 'Categoria', formato: 'Texto', sistema: 'SINASC', acesso: 'Institucional', descricao: 'Tipo de parto realizado.' },
+            { nome: 'Município', tecnico: 'MUNICIPIO', tipo: 'Texto', formato: 'Texto', sistema: 'SINASC', acesso: 'Institucional', descricao: 'Município de residência da mãe.' }
+          ] }
+        ],
+        'SIPAE': [
+          { id: 'sipae_execucao_financeira', nome: 'Execução Financeira', descricao: 'Despesas, empenhos e receitas por unidade e categoria.', origem: 'SIPAE', periodoDisponivel: '2018 - Atual', periodicidade: 'Mensal', statusIntegracao: 'Automatizada', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Competência', tecnico: 'COMPETENCIA', tipo: 'Data', formato: 'Mês/Ano', sistema: 'SIPAE', acesso: 'Institucional', descricao: 'Período de referência da despesa.' },
+            { nome: 'Unidade', tecnico: 'UNIDADE', tipo: 'Texto', formato: 'Texto', sistema: 'SIPAE', acesso: 'Institucional', descricao: 'Unidade administrativa responsável.' },
+            { nome: 'Natureza de Despesa', tecnico: 'NATUREZA', tipo: 'Texto', formato: 'Texto', sistema: 'SIPAE', acesso: 'Institucional', descricao: 'Natureza da despesa.' },
+            { nome: 'Valor', tecnico: 'VALOR', tipo: 'Número', formato: 'Decimal', sistema: 'SIPAE', acesso: 'Institucional', descricao: 'Valor do empenho ou execução.' }
+          ] }
+        ],
+        'Painel Integrado de Gestão': [
+          { id: 'panel_indicadores', nome: 'Conjunto demonstrativo', descricao: 'Indicadores integrados de gestão e coordenação institucional.', origem: 'Sistema demonstrativo', periodoDisponivel: '2023 - Atual', periodicidade: 'Mensal', statusIntegracao: 'Demonstrativo', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Indicador', tecnico: 'INDICADOR', tipo: 'Texto', formato: 'Texto', sistema: 'Painel Integrado de Gestão', acesso: 'Institucional', descricao: 'Indicador de gestão.' },
+            { nome: 'Período', tecnico: 'PERIODO', tipo: 'Data', formato: 'Mês/Ano', sistema: 'Painel Integrado de Gestão', acesso: 'Institucional', descricao: 'Período da medição.' },
+            { nome: 'Meta', tecnico: 'META', tipo: 'Número', formato: 'Decimal', sistema: 'Painel Integrado de Gestão', acesso: 'Institucional', descricao: 'Meta esperada do indicador.' }
+          ] }
+        ],
+        'Gestão da Força de Trabalho em Saúde': [
+          { id: 'gestao_forca_trabalho', nome: 'Conjunto demonstrativo', descricao: 'Indicadores de força de trabalho e educação em saúde.', origem: 'Sistema demonstrativo', periodoDisponivel: '2022 - Atual', periodicidade: 'Mensal', statusIntegracao: 'Demonstrativo', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Profissional', tecnico: 'PROFISSIONAL', tipo: 'Texto', formato: 'Texto', sistema: 'Gestão da Força de Trabalho em Saúde', acesso: 'Institucional', descricao: 'Nome funcional do profissional.' },
+            { nome: 'Categoria', tecnico: 'CATEGORIA', tipo: 'Categoria', formato: 'Texto', sistema: 'Gestão da Força de Trabalho em Saúde', acesso: 'Institucional', descricao: 'Categoria profissional.' },
+            { nome: 'Período', tecnico: 'PERIODO', tipo: 'Data', formato: 'Mês/Ano', sistema: 'Gestão da Força de Trabalho em Saúde', acesso: 'Institucional', descricao: 'Período de referência.' }
+          ] }
+        ],
+        'Cadastro da Rede Física de Saúde': [
+          { id: 'rede_fisica_saude', nome: 'Unidades de Saúde', descricao: 'Dados demonstrativos de unidades de saúde e infraestrutura.', origem: 'Sistema demonstrativo', periodoDisponivel: '2021 - Atual', periodicidade: 'Mensal', statusIntegracao: 'Demonstrativo', statusDisponibilizacao: 'Disponível', acesso: 'Institucional', variaveis: [
+            { nome: 'Unidade', tecnico: 'UNIDADE', tipo: 'Texto', formato: 'Texto', sistema: 'Cadastro da Rede Física de Saúde', acesso: 'Institucional', descricao: 'Nome da unidade de saúde.' },
+            { nome: 'Região', tecnico: 'REGIAO', tipo: 'Texto', formato: 'Texto', sistema: 'Cadastro da Rede Física de Saúde', acesso: 'Institucional', descricao: 'Região do município.' },
+            { nome: 'Tipo de Unidade', tecnico: 'TIPO_UNIDADE', tipo: 'Categoria', formato: 'Texto', sistema: 'Cadastro da Rede Física de Saúde', acesso: 'Institucional', descricao: 'Tipo de unidade de saúde.' }
+          ] }
+        ]
+      };
+
+      const dictionaryData = [
+        { termo: 'Município', tipo: 'Dimensão territorial', descricao: 'Município de referência da ocorrência, residência ou unidade de saúde.', fonte: 'Sistema de origem', formato: 'Texto', utilizado: ['SINAN','SIM','SINASC','e-SUS APS'] },
+        { termo: 'Data de Notificação', tipo: 'Dimensão temporal', descricao: 'Data em que o caso foi notificado para fins de vigilância.', fonte: 'SINAN', formato: 'Data', utilizado: ['SINAN'] },
+        { termo: 'Faixa Etária', tipo: 'Dimensão demográfica', descricao: 'Agrupamento padronizado de idade para análise e autorização.', fonte: 'Regra institucional', formato: 'Categoria', utilizado: ['SINAN','SIM','SINASC','e-SUS APS'] },
+        { termo: 'Causa Básica', tipo: 'Informação de mortalidade', descricao: 'Causa principal associada ao óbito, segundo codificação vigente.', fonte: 'SIM', formato: 'Texto', utilizado: ['SIM'] },
+        { termo: 'Peso ao Nascer', tipo: 'Indicador neonatal', descricao: 'Peso do recém-nascido no nascimento.', fonte: 'SINASC', formato: 'Decimal', utilizado: ['SINASC'] },
+        { termo: 'Competência', tipo: 'Período de referência', descricao: 'Mês ou ano que representa a referência do dado.', fonte: 'Sistema de origem', formato: 'Mês/Ano', utilizado: ['SIPAE','Atenção Primária'] }
+      ];
+
+      const allDataSets = Object.values(conjuntosPorSistema).flat();
+
+      function renderPage(page) {
+        state.currentPage = page;
+        document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === `page-${page}`));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.page === page));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function getSystemByName(name) {
+        return secretarias.flatMap(sec => sec.sistemas).find(sys => sys.nome === name);
+      }
+
+      function getSetById(id) {
+        return allDataSets.find(item => item.id === id);
+      }
+
+      function statusMarkup(label, tone) {
+        return `<span class="status-pill status-${tone}"><span class="status-dot"></span>${label}</span>`;
+      }
+
+      function buildHome() {
+        const home = document.getElementById('page-home');
+        home.innerHTML = `
+          <div class="hero">
+            <div class="eyebrow">Portal de Dados SESAU</div>
+            <h1>Encontre, selecione e disponibilize dados da SESAU</h1>
+            <p class="hero-copy">Explore os sistemas de informação, descubra os dados disponíveis e configure conjuntos para consulta, BI, integração e análise.</p>
+            <div class="cta-row">
+              <button class="btn btn-primary" id="homeCreateSetBtn">＋ Criar conjunto de dados</button>
+              <button class="btn btn-secondary" id="homeExploreCatalogBtn">Explorar catálogo</button>
+            </div>
+          </div>
+
+          <div class="stat-strip">
+            <div class="stat-box"><span>Sistemas</span><strong>28</strong></div>
+            <div class="stat-box"><span>Conjuntos</span><strong>164</strong></div>
+            <div class="stat-box"><span>Variáveis</span><strong>3.420</strong></div>
+            <div class="stat-box"><span>Disponibilizações ativas</span><strong>42</strong></div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h3>Sistemas de Informação</h3>
+              <a href="#" data-nav="catalog">Ver catálogo</a>
+            </div>
+            <div class="secretaria-grid" id="homeSecretarias"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h3>Explorar por área</h3>
+              <a href="#" data-nav="catalog">Ver todos</a>
+            </div>
+            <div class="area-grid" id="areasGrid"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h3>Minhas consultas</h3>
+              <a href="#" data-nav="consultas">Ver todas</a>
+            </div>
+            <div class="dataset-list" id="homeConsultas"></div>
+          </div>
+        `;
+
+        document.getElementById('homeCreateSetBtn').onclick = () => startBuilder();
+        document.getElementById('homeExploreCatalogBtn').onclick = () => renderPage('catalog');
+
+        const secretariasHtml = secretarias.map(sec => `
+          <div class="secretaria-card" data-secretaria="${sec.sigla}">
+            <div class="secretaria-top">
+              <div>
+                <div class="secretaria-sigla">${sec.sigla}</div>
+                <div class="secretaria-name">${sec.nome}</div>
+              </div>
+              <span class="status-pill status-neutral"><span class="status-dot"></span>${sec.sistemas.length} sistemas</span>
+            </div>
+            <div class="secretaria-description">${sec.descricao}</div>
+            <div class="secretaria-meta">
+              <span>${sec.sistemas.map(s => s.sigla).slice(0,2).join(' · ')}</span>
+              <span>${sec.sistemas[0]?.status || 'Disponível'}</span>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('homeSecretarias').innerHTML = secretariasHtml;
+        document.querySelectorAll('[data-secretaria]').forEach(card => {
+          card.addEventListener('click', () => {
+            const sigla = card.dataset.secretaria;
+            const sec = secretarias.find(s => s.sigla === sigla);
+            renderCatalog(sec);
+          });
+        });
+
+        const areas = [
+          ['Assistência à Saúde', '18 conjuntos'],
+          ['Vigilância em Saúde', '22 conjuntos'],
+          ['Atenção Primária', '14 conjuntos'],
+          ['Hospitalar', '12 conjuntos'],
+          ['Regulação', '8 conjuntos'],
+          ['Materno-Infantil', '9 conjuntos'],
+          ['Mortalidade', '6 conjuntos'],
+          ['Gestão', '11 conjuntos']
+        ];
+
+        document.getElementById('areasGrid').innerHTML = areas.map(([area, count]) => `
+          <div class="area-tile" data-area="${area}">
+            <div class="area-icon">□</div>
+            <div>
+              <div class="area-title">${area}</div>
+              <div class="area-meta">${count}</div>
+            </div>
+          </div>
+        `).join('');
+
+        const consultRows = state.consultas.map(item => `
+          <div class="dataset-row">
+            <div>
+              <div class="row-title">${item.nome}</div>
+              <div class="row-sub">${item.dataset} · ${item.period}</div>
+            </div>
+            <div>
+              <div class="row-sub">${item.registros} registros</div>
+              <div class="row-sub">Atualizado recentemente</div>
+            </div>
+            <div>
+              <span class="status-pill status-ok"><span class="status-dot"></span>${item.status}</span>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('homeConsultas').innerHTML = consultRows;
+
+        document.querySelectorAll('[data-nav]').forEach(el => {
+          el.addEventListener('click', e => {
+            e.preventDefault();
+            const page = el.dataset.nav;
+            if (page === 'catalog') renderCatalog();
+            else if (page === 'consultas') renderConsultas();
+            else renderPage(page);
+          });
+        });
+      }
+
+      function renderCatalog(secretariaFilter = null) {
+        const catalogPage = document.getElementById('page-catalog');
+        const selectedSecretaria = secretariaFilter ? secretariaFilter.sigla : state.selectedSecretaria || null;
+        const appliedData = allDataSets.filter(set => {
+          const systemMatch = getSystemByName(set.origem);
+          if (!selectedSecretaria) return true;
+          return systemMatch && systemMatch.secretaria === selectedSecretaria;
+        });
+
+        const datasetsMarkup = appliedData.map(set => {
+          const systemInfo = getSystemByName(set.origem);
+          return `
+            <div class="dataset-row">
+              <div>
+                <div class="row-title">${set.nome}</div>
+                <div class="row-sub">${set.origem} · ${set.descricao}</div>
+                <div class="tag-row">${set.periodicidade ? `<span class="tag">${set.periodicidade}</span>` : ''}${systemInfo?.secretaria ? `<span class="tag">${systemInfo.secretaria}</span>` : ''}</div>
+              </div>
+              <div>
+                <div class="row-sub">Período</div>
+                <div class="row-sub">${set.periodoDisponivel}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;justify-content:flex-end;">
+                ${statusMarkup(set.statusDisponibilizacao || 'Disponível', set.statusDisponibilizacao === 'Disponível' ? 'ok' : 'neutral')}
+                <button class="btn btn-secondary btn-sm" data-open-set="${set.id}">Consultar</button>
+              </div>
+            </div>
+          `;
+        }).join('') || '<div class="empty-box">Nenhum conjunto encontrado para a secretaria selecionada.</div>';
+
+        catalogPage.innerHTML = `
+          <div class="page-head">
+            <div>
+              <div class="eyebrow">Catálogo</div>
+              <h1>Catálogo de dados</h1>
+              <p class="lead">Descubra sistemas, conjuntos e variáveis disponíveis para consulta e disponibilização.</p>
+            </div>
+            <button class="btn btn-primary" id="catalogCreateBtn">＋ Criar conjunto de dados</button>
+          </div>
+
+          <div class="catalog-layout">
+            <aside class="filter-panel">
+              <h4>Filtros</h4>
+              <div class="filter-group">
+                <label>Secretaria</label>
+                <div class="filter-list">
+                  ${secretarias.map(sec => `
+                    <label class="check-item">
+                      <input type="checkbox" class="catalog-secretaria" value="${sec.sigla}" ${selectedSecretaria === sec.sigla ? 'checked' : ''}>
+                      <span>${sec.sigla}</span>
+                    </label>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="filter-group">
+                <label>Tipo de disponibilidade</label>
+                <div class="filter-list">
+                  <label class="check-item"><input type="checkbox" checked> <span>CSV</span></label>
+                  <label class="check-item"><input type="checkbox" checked> <span>Power BI</span></label>
+                  <label class="check-item"><input type="checkbox" checked> <span>API</span></label>
+                </div>
+              </div>
+              <div class="filter-group">
+                <label>Classificação de acesso</label>
+                <div class="filter-list">
+                  <label class="check-item"><input type="checkbox" checked> <span>Institucional</span></label>
+                  <label class="check-item"><input type="checkbox"> <span>Restrito</span></label>
+                </div>
+              </div>
+            </aside>
+
+            <div>
+              <div class="catalog-toolbar">
+                <input id="catalogSearchInput" class="input" type="text" value="${state.lastSearch || ''}" placeholder="Buscar por sistema, conjunto ou variável..." />
+                <select class="input toolbar-select" id="catalogSortSelect">
+                  <option value="recent">Mais recentes</option>
+                  <option value="name">A-Z</option>
+                </select>
+              </div>
+              <div class="dataset-list">${datasetsMarkup}</div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('catalogCreateBtn').onclick = () => startBuilder();
+
+        const searchInput = document.getElementById('catalogSearchInput');
+        searchInput.addEventListener('input', e => {
+          state.lastSearch = e.target.value.trim();
+          const list = allDataSets.filter(set => {
+            const haystack = `${set.nome} ${set.origem} ${set.descricao} ${set.periodicidade}`.toLowerCase();
+            return !state.lastSearch || haystack.includes(state.lastSearch.toLowerCase());
+          });
+          renderFilteredCatalog(list);
+        });
+
+        document.getElementById('catalogSortSelect').addEventListener('change', () => renderFilteredCatalog());
+
+        document.querySelectorAll('.catalog-secretaria').forEach(chk => {
+          chk.addEventListener('change', () => {
+            const checked = [...document.querySelectorAll('.catalog-secretaria:checked')].map(el => el.value);
+            if (checked.length === 0) {
+              state.selectedSecretaria = null;
+            } else if (checked.length === 1) {
+              state.selectedSecretaria = checked[0];
+            } else {
+              state.selectedSecretaria = null;
+            }
+            renderCatalog();
+          });
+        });
+
+        document.querySelectorAll('[data-open-set]').forEach(btn => {
+          btn.addEventListener('click', () => openConjunto(btn.dataset.openSet));
+        });
+      }
+
+      function renderFilteredCatalog(list = null) {
+        const source = list || allDataSets.filter(set => {
+          const allowed = [...document.querySelectorAll('.catalog-secretaria:checked')].map(el => el.value);
+          const systemInfo = getSystemByName(set.origem);
+          const within = !allowed.length || (systemInfo && allowed.includes(systemInfo.secretaria));
+          const haystack = `${set.nome} ${set.origem} ${set.descricao} ${set.periodicidade}`.toLowerCase();
+          const q = (state.lastSearch || '').toLowerCase();
+          const searchOk = !q || haystack.includes(q);
+          return within && searchOk;
+        });
+
+        const sorted = document.getElementById('catalogSortSelect').value === 'name'
+          ? [...source].sort((a, b) => a.nome.localeCompare(b.nome))
+          : source;
+
+        const page = document.getElementById('page-catalog');
+        const container = page.querySelector('.dataset-list');
+        if (!container) return;
+
+        container.innerHTML = sorted.map(set => {
+          const systemInfo = getSystemByName(set.origem);
+          return `
+            <div class="dataset-row">
+              <div>
+                <div class="row-title">${set.nome}</div>
+                <div class="row-sub">${set.origem} · ${set.descricao}</div>
+                <div class="tag-row"><span class="tag">${set.periodicidade}</span>${systemInfo?.secretaria ? `<span class="tag">${systemInfo.secretaria}</span>` : ''}</div>
+              </div>
+              <div>
+                <div class="row-sub">Período</div>
+                <div class="row-sub">${set.periodoDisponivel}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;justify-content:flex-end;">
+                ${statusMarkup(set.statusDisponibilizacao || 'Disponível', 'ok')}
+                <button class="btn btn-secondary btn-sm" data-open-set="${set.id}">Consultar</button>
+              </div>
+            </div>
+          `;
+        }).join('') || '<div class="empty-box">Nenhum conjunto encontrado com os filtros selecionados.</div>';
+
+        container.querySelectorAll('[data-open-set]').forEach(btn => {
+          btn.addEventListener('click', () => openConjunto(btn.dataset.openSet));
+        });
+      }
+
+      function openConjunto(setId) {
+        const set = getSetById(setId);
+        if (!set) return;
+
+        const systemInfo = getSystemByName(set.origem);
+        state.selectedConjunto = set;
+        state.selectedSistema = systemInfo?.nome || set.origem;
+        state.selectedSecretaria = systemInfo?.secretaria || 'SEVS';
+
+        const page = document.getElementById('page-catalog');
+        page.innerHTML = `
+          <div class="page-head">
+            <div>
+              <div class="eyebrow">Conjunto</div>
+              <h1>${set.nome}</h1>
+              <p class="lead">${set.descricao}</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-secondary" id="backCatalogBtn">← Voltar</button>
+              <button class="btn btn-primary" id="setCreateBtn">＋ Criar conjunto</button>
+            </div>
+          </div>
+
+          <div class="dataset-list">
+            <div class="dataset-row">
+              <div>
+                <div class="row-title">${systemInfo?.secretaria || 'SEVS'} · ${set.origem}</div>
+                <div class="row-sub">Origem: ${set.origem}</div>
+              </div>
+              <div>
+                <div class="row-sub">Período disponível</div>
+                <div class="row-sub">${set.periodoDisponivel}</div>
+              </div>
+              <div>
+                ${statusMarkup(set.statusDisponibilizacao || 'Disponível', 'ok')}
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head"><h3>Variáveis</h3></div>
+            <div class="dataset-list">
+              ${set.variaveis.map(v => `
+                <div class="dataset-row">
+                  <div>
+                    <div class="row-title">${v.nome}</div>
+                    <div class="row-sub">${v.tecnico || v.nome}</div>
+                  </div>
+                  <div>
+                    <div class="row-sub">Tipo</div>
+                    <div class="row-sub">${v.tipo}</div>
+                  </div>
+                  <div>
+                    <div class="row-sub">Acesso</div>
+                    <div class="row-sub">${v.acesso || 'Institucional'}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('backCatalogBtn').onclick = () => renderCatalog();
+        document.getElementById('setCreateBtn').onclick = () => startBuilder(systemInfo || null, set);
+        renderPage('catalog');
+      }
+
+      function renderDictionary() {
+        const page = document.getElementById('page-dictionary');
+        page.innerHTML = `
+          <div class="page-head">
+            <div>
+              <div class="eyebrow">Base de conhecimento</div>
+              <h1>Dicionário de Dados</h1>
+              <p class="lead">Pesquise conceitos, campos e indicadores utilizados nos conjuntos disponíveis.</p>
+            </div>
+          </div>
+          <div class="catalog-toolbar"><input id="dictionarySearchInput" class="input" placeholder="Pesquisar por sistema, variável, nome técnico ou descrição..." /></div>
+          <div class="knowledge-layout">
+            <div class="knowledge-list" id="dictionaryList"></div>
+            <div id="dictionaryDetail" class="info-block"></div>
+          </div>
+        `;
+
+        const list = document.getElementById('dictionaryList');
+        const detail = document.getElementById('dictionaryDetail');
+
+        const renderItems = (items) => {
+          list.innerHTML = items.map((item, index) => `
+            <div class="knowledge-item ${index === 0 ? 'active' : ''}" data-index="${index}" data-term="${item.termo}">
+              <strong>${item.termo}</strong>
+              <span>${item.tipo}</span>
+            </div>
+          `).join('');
+          if (items.length) {
+            const selected = items[0];
+            renderDictionaryDetail(selected, detail);
+          }
+          list.querySelectorAll('.knowledge-item').forEach(item => {
+            item.addEventListener('click', () => renderDictionaryDetail(items[Number(item.dataset.index)], detail));
+          });
+        };
+
+        document.getElementById('dictionarySearchInput').addEventListener('input', e => {
+          const search = e.target.value.trim().toLowerCase();
+          const itens = dictionaryData.filter(item => {
+            const haystack = `${item.termo} ${item.tipo} ${item.descricao} ${item.fonte} ${item.utilizado.join(' ')}`.toLowerCase();
+            return !search || haystack.includes(search);
+          });
+          renderItems(itens);
+        });
+
+        renderItems(dictionaryData);
+      }
+
+      function renderDictionaryDetail(item, detailEl) {
+        detailEl.innerHTML = `
+          <h3>${item.termo}</h3>
+          <div class="dictionary-row">
+            <div class="dictionary-meta">
+              <span class="mini-chip">${item.tipo}</span>
+              <span class="mini-chip">${item.formato}</span>
+              <span class="mini-chip">${item.fonte}</span>
+            </div>
+            <p>${item.descricao}</p>
+            <div>
+              <strong>Utilizado em:</strong>
+              <div class="dictionary-meta" style="margin-top:8px">${item.utilizado.map(v => `<span class="mini-chip">${v}</span>`).join('')}</div>
+            </div>
+            <div>
+              <strong>Documentação oficial:</strong>
+              <div style="margin-top:8px; display:grid; gap:8px;">
+                <a class="link-external" href="https://portalsinan.saude.gov.br/doencas-e-agravos" target="_blank" rel="noreferrer">Documentação oficial do SINAN</a>
+                <a class="link-external" href="https://svs.aids.gov.br/daent/cgiae/coesv/sistemas-informacao/" target="_blank" rel="noreferrer">Documentação dos Sistemas de Informação</a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderConsultas() {
+        const page = document.getElementById('page-consultas');
+        page.innerHTML = `
+          <div class="page-head">
+            <div><div class="eyebrow">Produtividade</div><h1>Minhas Consultas</h1><p class="lead">Retome, duplique ou gere novamente consultas usadas no seu dia a dia.</p></div>
+            <button class="btn btn-dark" id="consultasNewBtn">＋ Nova consulta</button>
+          </div>
+          <div class="table-card">
+            <div class="thead" style="padding:12px 14px; font-size:11px; font-weight:800; color:var(--muted); background:#f8fafc;">
+              <div>Consulta</div>
+              <div>Dataset</div>
+              <div>Período</div>
+              <div>Registros</div>
+              <div>Status</div>
+            </div>
+            ${state.consultas.map(item => `
+              <div class="table-row">
+                <div><strong>${item.nome}</strong></div>
+                <div>${item.dataset}</div>
+                <div>${item.period}</div>
+                <div>${item.registros}</div>
+                <div>${statusMarkup(item.status, 'ok')}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        document.getElementById('consultasNewBtn').onclick = () => startBuilder();
+      }
+
+      function renderExtractions() {
+        const page = document.getElementById('page-extractions');
+        page.innerHTML = `
+          <div class="page-head">
+            <div><div class="eyebrow">Arquivos gerados</div><h1>Minhas Extrações</h1><p class="lead">Histórico de arquivos gerados a partir das consultas do Portal de Dados.</p></div>
+          </div>
+          <div class="table-card">
+            <div class="thead" style="padding:12px 14px; font-size:11px; font-weight:800; color:var(--muted); background:#f8fafc;">
+              <div>Conjunto</div>
+              <div>Sistema</div>
+              <div>Data</div>
+              <div>Formato</div>
+              <div>Status</div>
+            </div>
+            <div class="table-row">
+              <div><strong>Doenças e Agravos</strong></div>
+              <div>SINAN</div>
+              <div>12/08/2026</div>
+              <div>CSV</div>
+              <div>${statusMarkup('Concluída', 'ok')}</div>
+            </div>
+            <div class="table-row">
+              <div><strong>Execução Financeira</strong></div>
+              <div>SIPAE</div>
+              <div>09/08/2026</div>
+              <div>XLSX</div>
+              <div>${statusMarkup('Pendente', 'warning')}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderDisponibilizacoes() {
+        const page = document.getElementById('page-disponibilizacoes');
+        page.innerHTML = `
+          <div class="page-head">
+            <div><div class="eyebrow">Disponibilização</div><h1>Minhas disponibilizações</h1><p class="lead">Acompanhe os conjuntos configurados para acesso, BI e integração.</p></div>
+            <button class="btn btn-primary" id="newDisponibilizacaoBtn">＋ Nova disponibilização</button>
+          </div>
+          <div class="dataset-list">
+            ${state.disponibilizacoes.map(item => `
+              <div class="dataset-row">
+                <div>
+                  <div class="row-title">${item.nome}</div>
+                  <div class="row-sub">${item.secretaria} · ${item.sistema}</div>
+                </div>
+                <div>
+                  <div class="row-sub">${item.data}</div>
+                  <div class="row-sub">${item.frequencia}</div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <span class="status-pill status-ok"><span class="status-dot"></span>${item.status}</span>
+                  <span class="tag">${item.destino}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        document.getElementById('newDisponibilizacaoBtn').onclick = () => startBuilder();
+      }
+
+      function renderGovernanca() {
+        const page = document.getElementById('page-governanca');
+        page.innerHTML = `
+          <div class="page-head">
+            <div>
+              <div class="eyebrow">Segurança e confiança</div>
+              <h1>Governança de Dados</h1>
+              <p class="lead">Autorização, rastreabilidade, classificação de sensibilidade e controles de acesso.</p>
+            </div>
+          </div>
+          <div class="governance-grid" style="display:grid;grid-template-columns:1.15fr .85fr;gap:14px;">
+            <div>
+              <div class="info-block">
+                <h3>Meu nível de acesso</h3>
+                <p style="margin-bottom:8px;">Perfil atual: <strong style="color:#344054">Analista</strong></p>
+                <ul style="margin:12px 0 0; padding-left:18px; color:#475467;">
+                  <li>Consultar dados públicos e institucionais autorizados.</li>
+                  <li>Gerar arquivos CSV e Excel para consultas permitidas.</li>
+                  <li>Solicitar acesso a conjuntos sensíveis com finalidade e justificativa.</li>
+                </ul>
+              </div>
+              <div class="info-block">
+                <h3>Classificações de acesso</h3>
+                <div class="policy-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px; margin-top:12px;">
+                  <div class="policy" style="border:1px solid var(--border); border-radius:8px; padding:14px; background:#fff;">
+                    <strong>Público</strong>
+                    <p>Disponível para consulta aberta.</p>
+                  </div>
+                  <div class="policy" style="border:1px solid var(--border); border-radius:8px; padding:14px; background:#fff;">
+                    <strong>Institucional</strong>
+                    <p>Acesso ao usuário da SESAU ou órgão autorizado.</p>
+                  </div>
+                  <div class="policy" style="border:1px solid var(--border); border-radius:8px; padding:14px; background:#fff;">
+                    <strong>Restrito</strong>
+                    <p>Requer autorização específica e rastreabilidade.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="info-block">
+                <h3>Políticas ativas</h3>
+                <div class="summary-item"><span>Identificadores pessoais</span><strong>Bloqueados</strong></div>
+                <div class="summary-item"><span>Dados sensíveis</span><strong>Somente autorizados</strong></div>
+                <div class="summary-item"><span>Auditoria</span><strong>Ativa</strong></div>
+                <div class="summary-item"><span>documentação</span><strong>Rastreada</strong></div>
+              </div>
+              <div class="info-block">
+                <h3>Origem e linhagem</h3>
+                <p style="font-size:12px;">Sistema de origem → Ingestão → Data Lake → Portal de Dados → Consumo.</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function accessStatusTone(status) {
+        const tones = {
+          Aprovado: 'ok',
+          'Em análise': 'warning',
+          Pendente: 'warning',
+          Rejeitado: 'lock',
+          Bloqueado: 'lock',
+          'Acesso revogado': 'neutral',
+          'Acesso ativo': 'ok'
+        };
+        return tones[status] || 'neutral';
+      }
+
+      function getAccessUserByEmail(email) {
+        return accessControlData.users.find(user => user.email.toLowerCase() === email.toLowerCase());
+      }
+
+      function renderAccessControl() {
+        const page = document.getElementById('page-access-control');
+        const user = accessControlData.currentUser;
+
+        if (!user) {
+          page.innerHTML = `
+            <div class="page-head">
+              <div>
+                <div class="eyebrow">Acesso institucional</div>
+                <h1>Controle de acesso do Portal SESAU</h1>
+                <p class="lead">Autorização, gestão de perfis, permissões por secretaria e rastreabilidade de decisões.</p>
+              </div>
+            </div>
+            <div class="access-shell">
+              <div class="auth-panel">
+                <div class="eyebrow">Acesso ao Portal</div>
+                <h2 style="margin:8px 0 16px;">Login</h2>
+                <form id="accessLoginForm" class="access-form">
+                  <div>
+                    <label for="loginEmail">E-mail institucional</label>
+                    <input id="loginEmail" class="input" type="email" placeholder="nome@sesau.pe.gov.br" required />
+                  </div>
+                  <div>
+                    <label for="loginPassword">Senha</label>
+                    <input id="loginPassword" class="input" type="password" placeholder="••••••••" required />
+                  </div>
+                  <div class="access-checklist">
+                    <label><input type="checkbox" checked> Manter sessão ativa</label>
+                    <label><input type="checkbox"> Autenticação de dois fatores</label>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Entrar no Portal</button>
+                </form>
+              </div>
+
+              <div class="auth-panel">
+                <div class="eyebrow">Primeiro acesso</div>
+                <h2 style="margin:8px 0 16px;">Solicitar cadastro</h2>
+                <form id="accessRegisterForm" class="access-form">
+                  <div>
+                    <label for="registerNome">Nome completo</label>
+                    <input id="registerNome" class="input" type="text" placeholder="Seu nome completo" required />
+                  </div>
+                  <div>
+                    <label for="registerEmail">E-mail institucional</label>
+                    <input id="registerEmail" class="input" type="email" placeholder="nome@sesau.pe.gov.br" required />
+                  </div>
+                  <div class="auth-grid">
+                    <div>
+                      <label for="registerSecretaria">Secretaria</label>
+                      <select id="registerSecretaria" class="input">
+                        <option>SEVS</option>
+                        <option>SEAB</option>
+                        <option>SEAF</option>
+                        <option>SECOGE</option>
+                        <option>SEGTES</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="registerPerfil">Perfil</label>
+                      <select id="registerPerfil" class="input">
+                        <option>Usuário</option>
+                        <option>Gestor</option>
+                        <option>Administrador</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="registerCargo">Cargo / função</label>
+                    <input id="registerCargo" class="input" type="text" placeholder="Ex.: Analista de Vigilância" required />
+                  </div>
+                  <div class="access-checklist">
+                    <label><input type="checkbox" checked> Concordo com a política de acesso mínimo necessário</label>
+                    <label><input type="checkbox" checked> Reconheço que o acesso do portal não concede acesso aos sistemas de origem</label>
+                  </div>
+                  <button class="btn btn-secondary" type="submit">Solicitar cadastro</button>
+                </form>
+              </div>
+            </div>
+          `;
+
+          const loginForm = document.getElementById('accessLoginForm');
+          const registerForm = document.getElementById('accessRegisterForm');
+
+          loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const profile = getAccessUserByEmail(email);
+
+            if (!profile || !password) {
+              showToast('Credenciais inválidas ou usuário não cadastrado');
+              return;
+            }
+
+            accessControlData.currentUser = profile;
+            renderAccessControl();
+            showToast(`Bem-vindo(a), ${profile.nome}`);
+          });
+
+          registerForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const newUser = {
+              id: Date.now(),
+              nome: document.getElementById('registerNome').value.trim(),
+              email: document.getElementById('registerEmail').value.trim(),
+              perfil: document.getElementById('registerPerfil').value,
+              secretaria: document.getElementById('registerSecretaria').value,
+              cargo: document.getElementById('registerCargo').value.trim(),
+              status: 'Pendente',
+              acessos: [],
+              ultimoAcesso: 'Solicitado'
+            };
+
+            if (!newUser.nome || !newUser.email || !newUser.cargo) {
+              showToast('Preencha todos os campos para solicitar o cadastro');
+              return;
+            }
+
+            accessControlData.users.unshift(newUser);
+            accessControlData.logs.unshift({
+              quando: 'Agora',
+              usuario: newUser.nome,
+              acao: 'Solicitou cadastro no Portal SESAU',
+              tipo: 'Registro'
+            });
+            registerForm.reset();
+            showToast('Cadastro solicitado com sucesso');
+          });
+          return;
+        }
+
+        const pendingUsers = accessControlData.users.filter(item => ['Pendente', 'Em análise', 'Rejeitado'].includes(item.status));
+        const canApprove = user.perfil === 'Administrador' || user.perfil === 'Gestor';
+
+        page.innerHTML = `
+          <div class="page-head">
+            <div>
+              <div class="eyebrow">Autorização</div>
+              <h1>Minha área de acesso</h1>
+              <p class="lead">Acompanhe o status do seu cadastro, permissões e atividades de governança do Portal SESAU.</p>
+            </div>
+            <button class="btn btn-secondary" id="accessLogoutBtn">Sair</button>
+          </div>
+
+          <div class="access-shell">
+            <div class="user-panel">
+              <div class="eyebrow">Perfil institucional</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0 14px;">
+                <div>
+                  <h2 style="margin:0;">${user.nome}</h2>
+                  <div class="muted-small">${user.cargo} · ${user.secretaria}</div>
+                </div>
+                <span class="status-pill status-${accessStatusTone(user.status)}"><span class="status-dot"></span>${user.status}</span>
+              </div>
+
+              <div class="summary-card" style="margin-top:10px;">
+                <div class="summary-item"><span>Perfil</span><strong>${user.perfil}</strong></div>
+                <div class="summary-item"><span>E-mail</span><strong>${user.email}</strong></div>
+                <div class="summary-item"><span>Último acesso</span><strong>${user.ultimoAcesso}</strong></div>
+              </div>
+
+              <div style="margin-top:18px;">
+                <div class="muted-small" style="font-weight:800; letter-spacing:.04em; text-transform:uppercase; margin-bottom:8px;">Permissões vigentes</div>
+                <div class="system-list">
+                  ${(user.acessos.length ? user.acessos : ['Portal SESAU']).map(item => `<span class="system-pill">${item}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-panel">
+              <div class="eyebrow">Gerenciamento</div>
+              <h2 style="margin:8px 0 16px;">Solicitações pendentes</h2>
+              ${canApprove ? pendingUsers.length ? pendingUsers.map(item => `
+                <div class="audit-item" style="margin-bottom:10px;">
+                  <div class="access-row">
+                    <div>
+                      <strong>${item.nome}</strong>
+                      <div class="muted-small">${item.cargo} · ${item.secretaria}</div>
+                    </div>
+                    <span class="status-pill status-${accessStatusTone(item.status)}"><span class="status-dot"></span>${item.status}</span>
+                  </div>
+                  <div class="muted-small" style="margin-top:8px;">${item.email}</div>
+                  <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                    <button class="btn btn-primary btn-sm" data-access-action="approve" data-user-id="${item.id}">Aprovar</button>
+                    <button class="btn btn-secondary btn-sm" data-access-action="reject" data-user-id="${item.id}">Rejeitar</button>
+                    <button class="btn btn-secondary btn-sm" data-access-action="block" data-user-id="${item.id}">Bloquear</button>
+                    <button class="btn btn-secondary btn-sm" data-access-action="revoke" data-user-id="${item.id}">Revogar</button>
+                  </div>
+                </div>
+              `).join('') : '<div class="empty-box">Nenhuma solicitação pendente no momento.</div>' : '<div class="empty-box">Sua conta não possui permissão para aprovar acessos.</div>'}
+            </div>
+          </div>
+
+          <div class="audit-panel" style="margin-top:18px;">
+            <div class="eyebrow">Auditoria e governança</div>
+            <h2 style="margin:8px 0 16px;">Histórico de decisões</h2>
+            <div class="audit-list">
+              ${accessControlData.logs.map(item => `
+                <div class="audit-item">
+                  <div class="access-row">
+                    <strong>${item.usuario}</strong>
+                    <span class="tag">${item.tipo}</span>
+                  </div>
+                  <div style="margin-top:6px; color:#475467; font-size:12px;">${item.acao}</div>
+                  <div class="muted-small" style="margin-top:8px;">${item.quando}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('accessLogoutBtn')?.addEventListener('click', () => {
+          accessControlData.currentUser = null;
+          renderAccessControl();
+          showToast('Sessão encerrada');
+        });
+
+        document.querySelectorAll('[data-access-action]').forEach(button => {
+          button.addEventListener('click', () => {
+            const action = button.dataset.accessAction;
+            const targetId = Number(button.dataset.userId);
+            const target = accessControlData.users.find(item => item.id === targetId);
+            if (!target) return;
+
+            const textMap = {
+              approve: 'Aprovado',
+              reject: 'Rejeitado',
+              block: 'Bloqueado',
+              revoke: 'Acesso revogado'
+            };
+
+            target.status = textMap[action] || target.status;
+            target.ultimoAcesso = action === 'approve' ? 'Agora' : target.ultimoAcesso;
+            accessControlData.logs.unshift({
+              quando: 'Agora',
+              usuario: accessControlData.currentUser.nome,
+              acao: `${action === 'approve' ? 'Aprovou' : action === 'reject' ? 'Rejeitou' : action === 'block' ? 'Bloqueou' : 'Revogou'} acesso de ${target.nome}`,
+              tipo: 'Decisão'
+            });
+            showToast(`Ação aplicada: ${textMap[action]}`);
+            renderAccessControl();
+          });
+        });
+      }
+
+      function renderManualLoad() {
+        const page = document.getElementById('page-manual-load');
+        page.innerHTML = `
+          <div class="page-head">
+            <div>
+              <div class="eyebrow">Gestão de Dados</div>
+              <h1>Carga Manual de Dados</h1>
+              <p class="lead">Integrações automatizadas com sistemas de informação e Data Lake são a forma preferencial de alimentação e atualização. A carga manual deve ser utilizada apenas para fontes que ainda não possuem integração automatizada.</p>
+            </div>
+            <button class="btn btn-primary" id="manualNewBtn">＋ Nova carga</button>
+          </div>
+          <div class="manual-callout">
+            <strong>Quando usar esta funcionalidade?</strong>
+            <p>Para bases que ainda dependem de envio manual pelo responsável. O arquivo é recebido pelo Portal, passa por uma etapa de qualificação e só depois pode ser publicado para consulta.</p>
+          </div>
+          <div class="manual-kpis">
+            <div class="manual-kpi"><div class="k-label">Conjuntos manuais</div><div class="k-value">4</div><div class="k-help">ativos no Portal</div></div>
+            <div class="manual-kpi"><div class="k-label">Próxima carga</div><div class="k-value">01/09</div><div class="k-help">Violência — Base Complementar</div></div>
+            <div class="manual-kpi"><div class="k-label">Em qualificação</div><div class="k-value">1</div><div class="k-help">aguardando validação</div></div>
+          </div>
+          <div class="manual-tabs">
+            <button class="manual-tab active">Nova carga</button>
+            <button class="manual-tab">Meus conjuntos manuais</button>
+            <button class="manual-tab">Histórico de cargas</button>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;">
+            <div style="display:grid; grid-template-columns: minmax(0,1fr) 320px; gap:16px;">
+              <div>
+                <div style="display:grid;gap:12px;">
+                  <div><label style="display:block;font-size:11px;font-weight:800;color:#475467;margin-bottom:6px;">Secretaria executiva</label><select class="input"><option>SEVS</option><option>SEAB</option><option>SEAF</option><option>SECOGE</option><option>SEGTES</option><option>SEINFRA</option></select></div>
+                  <div><label style="display:block;font-size:11px;font-weight:800;color:#475467;margin-bottom:6px;">Sistema de origem</label><select class="input"><option>SINAN</option><option>SIM</option><option>SINASC</option><option>e-SUS APS</option></select></div>
+                  <div><label style="display:block;font-size:11px;font-weight:800;color:#475467;margin-bottom:6px;">Descrição</label><textarea class="input" rows="4" placeholder="Descreva o conteúdo e finalidade da carga manual.">Base complementar de notificação e acompanhamento de eventos de saúde.</textarea></div>
+                </div>
+              </div>
+              <div>
+                <div style="border:1.5px dashed #aac7e5;border-radius:10px;background:#f8fbff;padding:26px 18px;text-align:center;">
+                  <div style="display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#eaf3fc;color:var(--primary-light);margin:0 auto 10px;">⬆</div>
+                  <strong>Arraste ou selecione arquivos</strong>
+                  <p style="margin-top:6px; font-size:11px;">CSV, XLSX ou TXT.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById('manualNewBtn').onclick = () => showToast('Carga manual iniciada');
+      }
+
+      function startBuilder(secretariaParam = null, conjuntoParam = null) {
+        const sec = secretariaParam || secretarias[4];
+        const sistemaDefault = sec.sistemas[0];
+        const setDefault = conjuntosPorSistema[sistemaDefault.nome]?.[0] || allDataSets[0];
+
+        state.selectedSecretaria = sec.sigla;
+        state.selectedSistema = sistemaDefault.nome;
+        state.selectedConjunto = conjuntoParam || setDefault;
+        state.selectedVariables = (conjuntoParam || setDefault).variaveis.slice(0, 4).map(v => v.nome);
+        state.builderStepIndex = 0;
+        state.builderComplete = false;
+        renderBuilder();
+      }
+
+      function renderBuilder() {
+        const page = document.getElementById('page-builder');
+        const sec = secretarias.find(s => s.sigla === state.selectedSecretaria) || secretarias[4];
+        const sistema = sec.sistemas.find(s => s.nome === state.selectedSistema) || sec.sistemas[0];
+        const conjunto = getSetById(state.selectedConjunto?.id) || conjuntosPorSistema[sistema.nome]?.[0] || allDataSets[0];
+
+        const stepLabels = [
+          'Secretaria', 'Sistema', 'Conjunto', 'Variáveis', 'Recortes', 'Período', 'Atualização', 'Destino', 'Revisão', 'Disponibilizar'
+        ];
+
+        const summary = [
+          ['Secretaria', sec.sigla],
+          ['Sistema', sistema.nome],
+          ['Conjunto', conjunto.nome],
+          ['Variáveis', state.selectedVariables.length ? `${state.selectedVariables.length} selecionadas` : 'Nenhuma'],
+          ['Período', state.periodo.mode === 'historico' ? 'Todo o histórico' : `A partir de ${state.periodo.start}`],
+          ['Atualização', state.atualizacao],
+          ['Destino', state.destino]
+        ];
+
+        const renderStepContent = () => {
+          switch (state.builderStepIndex) {
+            case 0: {
+              return `
+                <h3>1. Secretaria Executiva</h3>
+                <p>Selecione a secretaria responsável pelo conjunto de dados.</p>
+                <div class="option-grid">
+                  ${secretarias.map(item => `
+                    <div class="option-card ${state.selectedSecretaria === item.sigla ? 'active' : ''}" data-step-action="secretaria" data-value="${item.sigla}">
+                      <strong>${item.sigla}</strong>
+                      <small>${item.nome}</small>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            case 1: {
+              return `
+                <h3>2. Sistema de Informação</h3>
+                <p>Escolha o sistema que será disponibilizado.</p>
+                <div class="option-grid">
+                  ${sec.sistemas.map(item => `
+                    <div class="option-card ${state.selectedSistema === item.nome ? 'active' : ''}" data-step-action="sistema" data-value="${item.nome}">
+                      <strong>${item.sigla}</strong>
+                      <small>${item.nome}</small>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            case 2: {
+              return `
+                <h3>3. Conjunto de Dados</h3>
+                <p>Selecione o conjunto do sistema atual.</p>
+                <div class="option-grid">
+                  ${(conjuntosPorSistema[sistema.nome] || []).map(item => `
+                    <div class="option-card ${state.selectedConjunto?.id === item.id ? 'active' : ''}" data-step-action="conjunto" data-value="${item.id}">
+                      <strong>${item.nome}</strong>
+                      <small>${item.descricao}</small>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            case 3: {
+              const variables = conjunto.variaveis || [];
+              const selected = state.selectedVariables.length ? state.selectedVariables : variables.slice(0, 2).map(v => v.nome);
+              const toggleVar = (name) => {
+                const set = new Set(state.selectedVariables);
+                set.has(name) ? set.delete(name) : set.add(name);
+                state.selectedVariables = [...set];
+                renderBuilder();
+              };
+              return `
+                <h3>4. Variáveis</h3>
+                <p>Selecione as variáveis que deseja disponibilizar.</p>
+                <div class="selection-toolbar">
+                  <div class="left">
+                    <button class="btn btn-secondary btn-sm" id="selectAllVarsBtn">Selecionar todas</button>
+                    <button class="btn btn-secondary btn-sm" id="clearVarsBtn">Limpar</button>
+                  </div>
+                  <input id="varSearchInput" class="input" style="max-width:240px" type="text" placeholder="Pesquisar variável" />
+                </div>
+                <div class="variable-list">
+                  ${variables.map(v => `
+                    <div class="variable-row ${selected.includes(v.nome) ? 'selected' : ''}">
+                      <div>
+                        <div style="font-weight:800; color:#344054;">${v.nome}</div>
+                        <div class="variable-meta">${v.tecnico} · ${v.tipo} · ${v.formato}</div>
+                      </div>
+                      <label class="variable-check"><input type="checkbox" ${selected.includes(v.nome) ? 'checked' : ''} data-var-name="${v.nome}"></label>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            case 4: {
+              return `
+                <h3>5. Recortes</h3>
+                <p>Defina os filtros e recortes permitidos para a disponibilização.</p>
+                <div class="option-grid">
+                  ${['Município','Região','Unidade','Categoria','Situação','Tipo','Período','Outros filtros'].map(item => `
+                    <div class="option-card ${state.filters.municipio !== 'Todos' || item === 'Município' ? 'active' : ''}" data-step-action="recorte" data-value="${item}">
+                      <strong>${item}</strong>
+                      <small>Recorte configurável</small>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            case 5: {
+              return `
+                <h3>6. Período de disponibilização</h3>
+                <p>Configure o intervalo de dados que será disponibilizado.</p>
+                <div class="option-grid">
+                  <div class="option-card ${state.periodo.mode === 'historico' ? 'active' : ''}" data-step-action="periodo" data-value="historico"><strong>Todo o histórico autorizado</strong><small>Disponibiliza o histórico completo.</small></div>
+                  <div class="option-card ${state.periodo.mode === 'a-partir' ? 'active' : ''}" data-step-action="periodo" data-value="a-partir"><strong>A partir de uma data</strong><small>Desde 01/01/2024</small></div>
+                  <div class="option-card ${state.periodo.mode === 'intervalo' ? 'active' : ''}" data-step-action="periodo" data-value="intervalo"><strong>Intervalo específico</strong><small>Seleção de datas customizada.</small></div>
+                  <div class="option-card ${state.periodo.mode === 'ano' ? 'active' : ''}" data-step-action="periodo" data-value="ano"><strong>Ano específico</strong><small>Ex.: 2025</small></div>
+                </div>
+              `;
+            }
+            case 6: {
+              return `
+                <h3>7. Frequência de atualização</h3>
+                <p>A frequência define a periodicidade de atualização configurada para a disponibilização. O Portal atua como camada de acesso e distribuição e não como ferramenta de tratamento dos dados.</p>
+                <div class="option-grid">
+                  ${['Tempo real','Horária','Diária','Semanal','Quinzenal','Mensal','Bimestral','Trimestral','Semestral','Anual','Sob demanda'].map(item => `
+                    <div class="option-card ${state.atualizacao === item ? 'active' : ''}" data-step-action="atualizacao" data-value="${item}">
+                      <strong>${item}</strong>
+                      <small>Periodicidade de atualização</small>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            case 7: {
+              return `
+                <h3>8. Como você deseja consumir estes dados?</h3>
+                <div class="option-grid">
+                  <div class="option-card ${state.destino === 'CSV' ? 'active' : ''}" data-step-action="destino" data-value="CSV"><strong>CSV</strong><small>Arquivo em planilha</small></div>
+                  <div class="option-card ${state.destino === 'XLSX' ? 'active' : ''}" data-step-action="destino" data-value="XLSX"><strong>XLSX</strong><small>Arquivos Excel</small></div>
+                  <div class="option-card ${state.destino === 'Power BI' ? 'active' : ''}" data-step-action="destino" data-value="Power BI"><strong>Power BI</strong><small>Conexão demonstrativa</small></div>
+                  <div class="option-card ${state.destino === 'Qlik Sense' ? 'active' : ''}" data-step-action="destino" data-value="Qlik Sense"><strong>Qlik Sense</strong><small>Conexão demonstrativa</small></div>
+                  <div class="option-card ${state.destino === 'API' ? 'active' : ''}" data-step-action="destino" data-value="API"><strong>API</strong><small>Endpoint integrado</small></div>
+                  <div class="option-card ${state.destino === 'Banco externo' ? 'active' : ''}" data-step-action="destino" data-value="Banco externo"><strong>Banco externo</strong><small>INSERT em banco externo</small></div>
+                </div>
+              `;
+            }
+            case 8: {
+              return `
+                <h3>9. Revisão</h3>
+                <div class="summary-card">
+                  ${summary.map(([key, value]) => `
+                    <div class="summary-item"><span>${key}</span><strong>${value}</strong></div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            case 9: {
+              return `
+                <h3>10. Disponibilizar</h3>
+                <p>Confirme a criação do conjunto de dados para disponibilização conforme regras de acesso.</p>
+                <div class="summary-card">
+                  ${summary.map(([key, value]) => `
+                    <div class="summary-item"><span>${key}</span><strong>${value}</strong></div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            default:
+              return '<div class="empty-box">Seleção em aberto.</div>';
+          }
+        };
+
+        const stepperHtml = stepLabels.map((label, idx) => `
+          <div class="step ${idx === state.builderStepIndex ? 'active' : ''} ${idx < state.builderStepIndex ? 'done' : ''}">${idx + 1}. ${label}</div>
+        `).join('');
+
+        page.innerHTML = `
+          <div class="breadcrumb" style="margin-bottom:12px; color:var(--muted);">Catálogo → ${sec.sigla} → ${sistema.nome} → ${conjunto.nome}</div>
+          <div class="builder-shell">
+            <div class="builder-top">
+              <div>
+                <div class="dataset-code">${sec.sigla}</div>
+                <h2 style="margin:8px 0 0;">Criar conjunto de dados</h2>
+              </div>
+              <span class="status-pill status-neutral"><span class="status-dot"></span>Rascunho</span>
+            </div>
+            <div class="stepper">${stepperHtml}</div>
+            <div class="builder-grid">
+              <div class="builder-main">
+                ${renderStepContent()}
+                <div class="wizard-actions">
+                  <div class="left">
+                    <button class="btn btn-secondary" id="builderCancelBtn">Cancelar</button>
+                  </div>
+                  <div class="right">
+                    <button class="btn btn-secondary" id="builderBackBtn" ${state.builderStepIndex === 0 ? 'disabled' : ''}>Voltar</button>
+                    <button class="btn btn-primary" id="builderNextBtn">${state.builderStepIndex === 9 ? 'Solicitar disponibilização' : 'Próximo'}</button>
+                  </div>
+                </div>
+              </div>
+              <aside class="builder-summary">
+                <div class="summary-card">
+                  <h3 style="margin-bottom:10px;">Resumo</h3>
+                  ${summary.map(([key, value]) => `
+                    <div class="summary-item"><span>${key}</span><strong>${value}</strong></div>
+                  `).join('')}
+                </div>
+              </aside>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('builderCancelBtn').onclick = () => renderPage('catalog');
+        document.getElementById('builderBackBtn').onclick = () => {
+          if (state.builderStepIndex > 0) {
+            state.builderStepIndex -= 1;
+            renderBuilder();
+          }
+        };
+
+        document.getElementById('builderNextBtn').onclick = () => {
+          if (state.builderStepIndex < 9) {
+            const nextStep = state.builderStepIndex + 1;
+            if (nextStep === 1 && !state.selectedSecretaria) {
+              showToast('Selecione uma secretaria');
+              return;
+            }
+            state.builderStepIndex = nextStep;
+            renderBuilder();
+            return;
+          }
+
+          const nomeDisponibilizacao = `${state.selectedSistema || 'SINAN'} — ${state.selectedConjunto?.nome || 'Conjunto'}`;
+          state.disponibilizacoes.unshift({
+            nome: nomeDisponibilizacao,
+            secretaria: state.selectedSecretaria,
+            sistema: state.selectedSistema,
+            data: new Date().toLocaleDateString('pt-BR'),
+            frequencia: state.atualizacao,
+            formato: state.destino,
+            destino: state.destino,
+            status: 'Ativa',
+            ultimaAtualizacao: 'Agora'
+          });
+          showToast('Disponibilização criada com sucesso');
+          renderDisponibilizacoes();
+        };
+
+        page.querySelectorAll('[data-step-action]').forEach(el => {
+          el.addEventListener('click', () => {
+            const action = el.dataset.stepAction;
+            const value = el.dataset.value;
+            if (action === 'secretaria') {
+              state.selectedSecretaria = value;
+              const nextSec = secretarias.find(s => s.sigla === value);
+              state.selectedSistema = nextSec?.sistemas[0]?.nome || state.selectedSistema;
+            }
+            if (action === 'sistema') state.selectedSistema = value;
+            if (action === 'conjunto') {
+              const nextSet = (conjuntosPorSistema[state.selectedSistema] || []).find(item => item.id === value);
+              if (nextSet) state.selectedConjunto = nextSet;
+            }
+            if (action === 'periodo') state.periodo.mode = value;
+            if (action === 'atualizacao') state.atualizacao = value;
+            if (action === 'destino') state.destino = value;
+            if (action === 'recorte') state.filters.municipio = value === 'Município' ? 'Recorte ativo' : state.filters.municipio;
+            renderBuilder();
+          });
+        });
+
+        if (state.builderStepIndex === 3) {
+          const varSearch = document.getElementById('varSearchInput');
+          if (varSearch) {
+            varSearch.addEventListener('input', (e) => {
+              const term = e.target.value.toLowerCase();
+              const variables = conjunto.variaveis.filter(v => `${v.nome} ${v.tecnico}`.toLowerCase().includes(term));
+              const selected = state.selectedVariables.length ? state.selectedVariables : variables.slice(0, 2).map(v => v.nome);
+              const list = document.querySelector('.variable-list');
+              if (!list) return;
+              list.innerHTML = variables.map(v => `
+                <div class="variable-row ${selected.includes(v.nome) ? 'selected' : ''}">
+                  <div>
+                    <div style="font-weight:800; color:#344054;">${v.nome}</div>
+                    <div class="variable-meta">${v.tecnico} · ${v.tipo} · ${v.formato}</div>
+                  </div>
+                  <label class="variable-check"><input type="checkbox" ${selected.includes(v.nome) ? 'checked' : ''} data-var-name="${v.nome}"></label>
+                </div>
+              `).join('');
+              list.querySelectorAll('[data-var-name]').forEach(check => {
+                check.addEventListener('change', () => {
+                  const name = check.dataset.varName;
+                  const next = new Set(state.selectedVariables);
+                  check.checked ? next.add(name) : next.delete(name);
+                  state.selectedVariables = [...next];
+                  renderBuilder();
+                });
+              });
+            });
+          }
+
+          document.getElementById('selectAllVarsBtn')?.addEventListener('click', () => {
+            state.selectedVariables = conjunto.variaveis.map(v => v.nome);
+            renderBuilder();
+          });
+          document.getElementById('clearVarsBtn')?.addEventListener('click', () => {
+            state.selectedVariables = [];
+            renderBuilder();
+          });
+          document.querySelectorAll('[data-var-name]').forEach(check => {
+            check.addEventListener('change', () => {
+              const name = check.dataset.varName;
+              const next = new Set(state.selectedVariables);
+              check.checked ? next.add(name) : next.delete(name);
+              state.selectedVariables = [...next];
+            });
+          });
+        }
+
+        renderPage('builder');
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2200);
+      }
+
+      function bindGlobalSearch() {
+        const input = document.getElementById('globalSearchInput');
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            const term = input.value.trim();
+            if (!term) return;
+            state.lastSearch = term;
+            renderCatalog();
+            const pageCatalog = document.getElementById('page-catalog');
+            const searchInput = pageCatalog.querySelector('#catalogSearchInput');
+            if (searchInput) {
+              searchInput.value = term;
+            }
+            const found = allDataSets.filter(set => `${set.nome} ${set.origem} ${set.descricao}`.toLowerCase().includes(term.toLowerCase()));
+            if (found.length) {
+              showToast(`${found.length} resultados encontrados`);
+            } else {
+              showToast('Nenhum resultado encontrado');
+            }
+          }
+        });
+      }
+
+      function init() {
+        buildHome();
+        renderCatalog();
+        renderDictionary();
+        renderConsultas();
+        renderExtractions();
+        renderDisponibilizacoes();
+        renderAccessControl();
+        renderGovernanca();
+        renderManualLoad();
+        bindGlobalSearch();
+        document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => {
+          const page = item.dataset.page;
+          if (page === 'home') buildHome();
+          if (page === 'catalog') renderCatalog();
+          if (page === 'builder') startBuilder();
+          if (page === 'dictionary') renderDictionary();
+          if (page === 'consultas') renderConsultas();
+          if (page === 'extractions') renderExtractions();
+          if (page === 'disponibilizacoes') renderDisponibilizacoes();
+          if (page === 'access-control') renderAccessControl();
+          if (page === 'governanca') renderGovernanca();
+          if (page === 'manual-load') renderManualLoad();
+          renderPage(page);
+        }));
+        document.getElementById('brandIcon').textContent = 'DB';
+        document.getElementById('globalSearchIcon').textContent = '⌕';
+        document.getElementById('helpBtn').textContent = '?';
+        document.getElementById('notificationBtn').innerHTML = '🔔<span class="notification-dot"></span>';
+        renderPage('home');
+      }
+
+      init();
+    </script>
+  </body>
+</html>

@@ -316,6 +316,13 @@
       .empty-box {
         text-align: center; padding: 28px; color: var(--muted); background: #fff; border: 1px solid var(--border); border-radius: 8px;
       }
+      .period-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+      .field-label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #475467; }
+      .field-error { color: var(--danger); font-size: 12px; margin: 8px 0 0; }
+      .review-variables { margin: 8px 0 0; padding-left: 18px; color: #475467; }
+      .review-variables li { margin: 3px 0; }
+      .builder-success { background: var(--success-bg); border: 1px solid #b7e1cc; border-radius: 10px; padding: 18px; }
+      .builder-success strong { color: var(--success); }
       .wizard-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 24px; }
       .wizard-actions .left, .wizard-actions .right { display: flex; gap: 8px; }
 
@@ -374,7 +381,7 @@
         .profile-copy { display: none; }
         .content { padding: 24px 18px 36px; }
         .secretaria-grid, .system-grid, .area-grid, .knowledge-layout, .catalog-layout { grid-template-columns: 1fr; }
-        .stat-strip, .manual-kpis { grid-template-columns: 1fr; }
+        .stat-strip, .manual-kpis, .period-fields { grid-template-columns: 1fr; }
         .page-head { flex-direction: column; }
       }
 
@@ -474,11 +481,13 @@
         selectedConjunto: null,
         selectedVariables: [],
         filters: { municipio: 'Todos', regiao: 'Todas', situacao: 'Todas' },
-        periodo: { mode: 'historico', start: '2024-01-01', end: '2026-12-31' },
+        periodo: { mode: 'intervalo', start: '', end: '', year: '' },
         atualizacao: 'Diária',
-        destino: 'Power BI',
+        destino: 'E-mail do usuário',
+        nomeConjunto: '',
         builderStepIndex: 0,
         builderComplete: false,
+        lastRequest: null,
         lastSearch: '',
         disponibilizacoes: [
           {
@@ -704,6 +713,46 @@
       ];
 
       const allDataSets = Object.values(conjuntosPorSistema).flat();
+      const builderSystemNames = ['SINAN', 'SIM', 'SINASC', 'REDCAP'];
+      const builderSystemDefaults = {
+        SINAN: { sigla: 'SINAN', descricao: 'Sistema de Informação de Agravos de Notificação.' },
+        SIM: { sigla: 'SIM', descricao: 'Sistema de Informação sobre Mortalidade.' },
+        SINASC: { sigla: 'SINASC', descricao: 'Sistema de Informações sobre Nascidos Vivos.' },
+        REDCAP: { sigla: 'REDCAP', descricao: 'Plataforma para coleta e gerenciamento de dados.' }
+      };
+
+      function getBuilderSystem(name) {
+        const existing = secretarias.flatMap(sec => sec.sistemas).find(item => item.nome === name);
+        const fallback = builderSystemDefaults[name] || builderSystemDefaults.SINAN;
+        return existing || { ...fallback, nome: name };
+      }
+
+      function getBuilderDataset(systemName) {
+        return conjuntosPorSistema[systemName]?.[0] || {
+          id: `${systemName.toLowerCase()}_dados`,
+          nome: `Dados do ${systemName}`,
+          descricao: `Dados selecionados do sistema ${systemName}.`,
+          origem: systemName,
+          variaveis: [
+            { nome: 'Identificador', tecnico: 'ID_REGISTRO', tipo: 'Texto', formato: 'Texto' },
+            { nome: 'Município', tecnico: 'MUNICIPIO', tipo: 'Texto', formato: 'Texto' },
+            { nome: 'Data de referência', tecnico: 'DATA_REFERENCIA', tipo: 'Data', formato: 'Data' }
+          ]
+        };
+      }
+
+      function getAuthenticatedUserEmail() {
+        return accessControlData.currentUser?.email || accessControlData.users.find(user => user.status === 'Aprovado')?.email || 'usuário autenticado';
+      }
+
+      function formatBuilderDate(value) {
+        if (!value) return '';
+        return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(`${value}T00:00:00Z`));
+      }
+
+      function sendDatasetByEmail(request) {
+        return { status: 'not-configured', recipient: request.recipient };
+      }
 
       function renderPage(page) {
         state.currentPage = page;
@@ -1606,40 +1655,62 @@
       }
 
       function startBuilder(secretariaParam = null, conjuntoParam = null) {
-        const sec = secretariaParam || secretarias[4];
-        const sistemaDefault = sec.sistemas[0];
-        const setDefault = conjuntosPorSistema[sistemaDefault.nome]?.[0] || allDataSets[0];
+        const sec = secretariaParam?.sigla
+          ? secretariaParam
+          : secretarias.find(item => item.sigla === secretariaParam?.secretaria) || secretarias[4];
+        const requestedSystem = conjuntoParam?.origem;
+        const sistemaDefault = builderSystemNames.includes(requestedSystem)
+          ? requestedSystem
+          : (builderSystemNames.includes(state.selectedSistema) ? state.selectedSistema : 'SINAN');
+        const setDefault = builderSystemNames.includes(requestedSystem) ? conjuntoParam : getBuilderDataset(sistemaDefault);
 
         state.selectedSecretaria = sec.sigla;
-        state.selectedSistema = sistemaDefault.nome;
-        state.selectedConjunto = conjuntoParam || setDefault;
-        state.selectedVariables = (conjuntoParam || setDefault).variaveis.slice(0, 4).map(v => v.nome);
+        state.selectedSistema = sistemaDefault;
+        state.selectedConjunto = setDefault;
+        state.selectedVariables = setDefault.variaveis.slice(0, 4).map(v => v.nome);
+        state.periodo = { mode: 'intervalo', start: '', end: '', year: '' };
+        state.atualizacao = 'Diária';
+        state.destino = 'E-mail do usuário';
+        state.nomeConjunto = '';
         state.builderStepIndex = 0;
         state.builderComplete = false;
+        state.lastRequest = null;
         renderBuilder();
       }
 
       function renderBuilder() {
         const page = document.getElementById('page-builder');
         const sec = secretarias.find(s => s.sigla === state.selectedSecretaria) || secretarias[4];
-        const sistema = sec.sistemas.find(s => s.nome === state.selectedSistema) || sec.sistemas[0];
-        const conjunto = getSetById(state.selectedConjunto?.id) || conjuntosPorSistema[sistema.nome]?.[0] || allDataSets[0];
+        const sistema = getBuilderSystem(state.selectedSistema);
+        const conjunto = getSetById(state.selectedConjunto?.id) || getBuilderDataset(sistema.nome);
+        state.selectedConjunto = conjunto;
 
         const stepLabels = [
-          'Secretaria', 'Sistema', 'Conjunto', 'Variáveis', 'Recortes', 'Período', 'Atualização', 'Destino', 'Revisão', 'Disponibilizar'
+          'Secretaria', 'Sistema', 'Variáveis', 'Período', 'Atualização', 'Destino', 'Revisão'
         ];
 
+        const periodLabel = state.periodo.mode === 'ano'
+          ? (state.periodo.year ? `Ano ${state.periodo.year}` : 'Não informado')
+          : (state.periodo.start && state.periodo.end ? `${formatBuilderDate(state.periodo.start)} a ${formatBuilderDate(state.periodo.end)}` : 'Não informado');
         const summary = [
           ['Secretaria', sec.sigla],
           ['Sistema', sistema.nome],
-          ['Conjunto', conjunto.nome],
           ['Variáveis', state.selectedVariables.length ? `${state.selectedVariables.length} selecionadas` : 'Nenhuma'],
-          ['Período', state.periodo.mode === 'historico' ? 'Todo o histórico' : `A partir de ${state.periodo.start}`],
+          ['Período', periodLabel],
           ['Atualização', state.atualizacao],
           ['Destino', state.destino]
         ];
 
         const renderStepContent = () => {
+          if (state.builderComplete) {
+            return `
+              <div class="builder-success">
+                <strong>Solicitação criada com sucesso.</strong>
+                <p>O conjunto <strong>${state.nomeConjunto}</strong> foi registrado para processamento e será disponibilizado para ${getAuthenticatedUserEmail()}.</p>
+                <p class="muted-small">O envio real por e-mail depende da integração do serviço de backend.</p>
+              </div>
+            `;
+          }
           switch (state.builderStepIndex) {
             case 0: {
               return `
@@ -1660,40 +1731,23 @@
                 <h3>2. Sistema de Informação</h3>
                 <p>Escolha o sistema que será disponibilizado.</p>
                 <div class="option-grid">
-                  ${sec.sistemas.map(item => `
+                  ${builderSystemNames.map(name => {
+                    const item = getBuilderSystem(name);
+                    return `
                     <div class="option-card ${state.selectedSistema === item.nome ? 'active' : ''}" data-step-action="sistema" data-value="${item.nome}">
                       <strong>${item.sigla}</strong>
                       <small>${item.nome}</small>
                     </div>
-                  `).join('')}
+                  `;
+                  }).join('')}
                 </div>
               `;
             }
             case 2: {
-              return `
-                <h3>3. Conjunto de Dados</h3>
-                <p>Selecione o conjunto do sistema atual.</p>
-                <div class="option-grid">
-                  ${(conjuntosPorSistema[sistema.nome] || []).map(item => `
-                    <div class="option-card ${state.selectedConjunto?.id === item.id ? 'active' : ''}" data-step-action="conjunto" data-value="${item.id}">
-                      <strong>${item.nome}</strong>
-                      <small>${item.descricao}</small>
-                    </div>
-                  `).join('')}
-                </div>
-              `;
-            }
-            case 3: {
               const variables = conjunto.variaveis || [];
-              const selected = state.selectedVariables.length ? state.selectedVariables : variables.slice(0, 2).map(v => v.nome);
-              const toggleVar = (name) => {
-                const set = new Set(state.selectedVariables);
-                set.has(name) ? set.delete(name) : set.add(name);
-                state.selectedVariables = [...set];
-                renderBuilder();
-              };
+              const selected = state.selectedVariables;
               return `
-                <h3>4. Variáveis</h3>
+                <h3>3. Variáveis</h3>
                 <p>Selecione as variáveis que deseja disponibilizar.</p>
                 <div class="selection-toolbar">
                   <div class="left">
@@ -1715,15 +1769,36 @@
                 </div>
               `;
             }
+            case 3: {
+              return `
+                <h3>4. Período</h3>
+                <p>Escolha o intervalo temporal que será disponibilizado.</p>
+                <div class="option-grid">
+                  <div class="option-card ${state.periodo.mode === 'intervalo' ? 'active' : ''}" data-step-action="periodo" data-value="intervalo"><strong>◉ Intervalo específico</strong><small>Informe a data inicial e final.</small></div>
+                  <div class="option-card ${state.periodo.mode === 'ano' ? 'active' : ''}" data-step-action="periodo" data-value="ano"><strong>◯ Ano específico</strong><small>Selecione um ano completo.</small></div>
+                </div>
+                ${state.periodo.mode === 'ano' ? `
+                  <div style="margin-top:14px;max-width:240px;">
+                    <label class="field-label" for="periodYear">Ano</label>
+                    <input class="input" id="periodYear" type="number" min="1900" max="2100" value="${state.periodo.year}" placeholder="Ex.: 2025">
+                  </div>
+                ` : `
+                  <div class="period-fields">
+                    <div><label class="field-label" for="periodStart">Data inicial</label><input class="input" id="periodStart" type="date" value="${state.periodo.start}"></div>
+                    <div><label class="field-label" for="periodEnd">Data final</label><input class="input" id="periodEnd" type="date" value="${state.periodo.end}"></div>
+                  </div>
+                `}
+              `;
+            }
             case 4: {
               return `
-                <h3>5. Recortes</h3>
-                <p>Defina os filtros e recortes permitidos para a disponibilização.</p>
+                <h3>5. Frequência de atualização</h3>
+                <p>Escolha como o conjunto será disponibilizado. Em <strong>Dado congelado</strong>, será gerado um recorte único do período selecionado, sem atualizações posteriores.</p>
                 <div class="option-grid">
-                  ${['Município','Região','Unidade','Categoria','Situação','Tipo','Período','Outros filtros'].map(item => `
-                    <div class="option-card ${state.filters.municipio !== 'Todos' || item === 'Município' ? 'active' : ''}" data-step-action="recorte" data-value="${item}">
+                  ${['Dado congelado','Tempo real','Horária','Diária','Semanal','Quinzenal','Mensal','Bimestral','Trimestral','Semestral','Anual'].map(item => `
+                    <div class="option-card ${state.atualizacao === item ? 'active' : ''}" data-step-action="atualizacao" data-value="${item}">
                       <strong>${item}</strong>
-                      <small>Recorte configurável</small>
+                      <small>${item === 'Dado congelado' ? 'Recorte único do período selecionado, sem atualizações.' : 'Periodicidade de atualização'}</small>
                     </div>
                   `).join('')}
                 </div>
@@ -1731,61 +1806,27 @@
             }
             case 5: {
               return `
-                <h3>6. Período de disponibilização</h3>
-                <p>Configure o intervalo de dados que será disponibilizado.</p>
+                <h3>6. Destino</h3>
+                <p>O conjunto será disponibilizado para o e-mail do usuário autenticado.</p>
                 <div class="option-grid">
-                  <div class="option-card ${state.periodo.mode === 'historico' ? 'active' : ''}" data-step-action="periodo" data-value="historico"><strong>Todo o histórico autorizado</strong><small>Disponibiliza o histórico completo.</small></div>
-                  <div class="option-card ${state.periodo.mode === 'a-partir' ? 'active' : ''}" data-step-action="periodo" data-value="a-partir"><strong>A partir de uma data</strong><small>Desde 01/01/2024</small></div>
-                  <div class="option-card ${state.periodo.mode === 'intervalo' ? 'active' : ''}" data-step-action="periodo" data-value="intervalo"><strong>Intervalo específico</strong><small>Seleção de datas customizada.</small></div>
-                  <div class="option-card ${state.periodo.mode === 'ano' ? 'active' : ''}" data-step-action="periodo" data-value="ano"><strong>Ano específico</strong><small>Ex.: 2025</small></div>
+                  <div class="option-card active" data-step-action="destino" data-value="E-mail do usuário"><strong>E-mail do usuário</strong><small>${getAuthenticatedUserEmail()}</small></div>
                 </div>
               `;
             }
             case 6: {
+              const selectedVariables = conjunto.variaveis.filter(variable => state.selectedVariables.includes(variable.nome));
               return `
-                <h3>7. Frequência de atualização</h3>
-                <p>A frequência define a periodicidade de atualização configurada para a disponibilização. O Portal atua como camada de acesso e distribuição e não como ferramenta de tratamento dos dados.</p>
-                <div class="option-grid">
-                  ${['Tempo real','Horária','Diária','Semanal','Quinzenal','Mensal','Bimestral','Trimestral','Semestral','Anual','Sob demanda'].map(item => `
-                    <div class="option-card ${state.atualizacao === item ? 'active' : ''}" data-step-action="atualizacao" data-value="${item}">
-                      <strong>${item}</strong>
-                      <small>Periodicidade de atualização</small>
-                    </div>
-                  `).join('')}
-                </div>
-              `;
-            }
-            case 7: {
-              return `
-                <h3>8. Como você deseja consumir estes dados?</h3>
-                <div class="option-grid">
-                  <div class="option-card ${state.destino === 'CSV' ? 'active' : ''}" data-step-action="destino" data-value="CSV"><strong>CSV</strong><small>Arquivo em planilha</small></div>
-                  <div class="option-card ${state.destino === 'XLSX' ? 'active' : ''}" data-step-action="destino" data-value="XLSX"><strong>XLSX</strong><small>Arquivos Excel</small></div>
-                  <div class="option-card ${state.destino === 'Power BI' ? 'active' : ''}" data-step-action="destino" data-value="Power BI"><strong>Power BI</strong><small>Conexão demonstrativa</small></div>
-                  <div class="option-card ${state.destino === 'Qlik Sense' ? 'active' : ''}" data-step-action="destino" data-value="Qlik Sense"><strong>Qlik Sense</strong><small>Conexão demonstrativa</small></div>
-                  <div class="option-card ${state.destino === 'API' ? 'active' : ''}" data-step-action="destino" data-value="API"><strong>API</strong><small>Endpoint integrado</small></div>
-                  <div class="option-card ${state.destino === 'Banco externo' ? 'active' : ''}" data-step-action="destino" data-value="Banco externo"><strong>Banco externo</strong><small>INSERT em banco externo</small></div>
-                </div>
-              `;
-            }
-            case 8: {
-              return `
-                <h3>9. Revisão</h3>
+                <h3>7. Revisão da solicitação</h3>
                 <div class="summary-card">
-                  ${summary.map(([key, value]) => `
-                    <div class="summary-item"><span>${key}</span><strong>${value}</strong></div>
-                  `).join('')}
+                  <div class="summary-item"><span>Sistema</span><strong>${sistema.nome}</strong></div>
+                  <div class="summary-item"><span>Variáveis selecionadas</span><div><ul class="review-variables">${selectedVariables.map(variable => `<li>${variable.nome}</li>`).join('')}</ul></div></div>
+                  <div class="summary-item"><span>Período</span><strong>${periodLabel}</strong></div>
+                  <div class="summary-item"><span>Frequência de atualização</span><strong>${state.atualizacao}</strong></div>
+                  <div class="summary-item"><span>Destino</span><strong>${state.destino}</strong></div>
                 </div>
-              `;
-            }
-            case 9: {
-              return `
-                <h3>10. Disponibilizar</h3>
-                <p>Confirme a criação do conjunto de dados para disponibilização conforme regras de acesso.</p>
-                <div class="summary-card">
-                  ${summary.map(([key, value]) => `
-                    <div class="summary-item"><span>${key}</span><strong>${value}</strong></div>
-                  `).join('')}
+                <div style="margin-top:16px;">
+                  <label class="field-label" for="datasetName">Nome do conjunto de dados</label>
+                  <input class="input" id="datasetName" type="text" value="${state.nomeConjunto}" placeholder="Informe um nome para o conjunto de dados">
                 </div>
               `;
             }
@@ -1806,7 +1847,7 @@
                 <div class="dataset-code">${sec.sigla}</div>
                 <h2 style="margin:8px 0 0;">Criar conjunto de dados</h2>
               </div>
-              <span class="status-pill status-neutral"><span class="status-dot"></span>Rascunho</span>
+              <span class="status-pill ${state.builderComplete ? 'status-ok' : 'status-neutral'}"><span class="status-dot"></span>${state.builderComplete ? 'Solicitada' : 'Rascunho'}</span>
             </div>
             <div class="stepper">${stepperHtml}</div>
             <div class="builder-grid">
@@ -1817,8 +1858,8 @@
                     <button class="btn btn-secondary" id="builderCancelBtn">Cancelar</button>
                   </div>
                   <div class="right">
-                    <button class="btn btn-secondary" id="builderBackBtn" ${state.builderStepIndex === 0 ? 'disabled' : ''}>Voltar</button>
-                    <button class="btn btn-primary" id="builderNextBtn">${state.builderStepIndex === 9 ? 'Solicitar disponibilização' : 'Próximo'}</button>
+                    <button class="btn btn-secondary" id="builderBackBtn" ${state.builderStepIndex === 0 || state.builderComplete ? 'disabled' : ''}>Voltar</button>
+                    <button class="btn btn-primary" id="builderNextBtn">${state.builderComplete ? 'Voltar às disponibilizações' : state.builderStepIndex === 6 ? 'Solicitar disponibilização' : 'Próximo'}</button>
                   </div>
                 </div>
               </div>
@@ -1843,31 +1884,78 @@
         };
 
         document.getElementById('builderNextBtn').onclick = () => {
-          if (state.builderStepIndex < 9) {
+          if (state.builderComplete) {
+            renderDisponibilizacoes();
+            return;
+          }
+          if (state.builderStepIndex < 6) {
             const nextStep = state.builderStepIndex + 1;
+            if (state.builderStepIndex === 3) {
+              state.periodo.start = document.getElementById('periodStart')?.value || '';
+              state.periodo.end = document.getElementById('periodEnd')?.value || '';
+              state.periodo.year = document.getElementById('periodYear')?.value || '';
+            }
             if (nextStep === 1 && !state.selectedSecretaria) {
               showToast('Selecione uma secretaria');
               return;
+            }
+            if (nextStep === 2 && !state.selectedSistema) {
+              showToast('Selecione um sistema');
+              return;
+            }
+            if (nextStep === 3 && !state.selectedVariables.length) {
+              showToast('Selecione ao menos uma variável');
+              return;
+            }
+            if (nextStep === 4) {
+              if (state.periodo.mode === 'intervalo' && (!state.periodo.start || !state.periodo.end || state.periodo.start > state.periodo.end)) {
+                showToast('Informe um intervalo de datas válido');
+                return;
+              }
+              if (state.periodo.mode === 'ano' && !/^(19|20)\d{2}$/.test(state.periodo.year)) {
+                showToast('Informe um ano válido');
+                return;
+              }
             }
             state.builderStepIndex = nextStep;
             renderBuilder();
             return;
           }
 
-          const nomeDisponibilizacao = `${state.selectedSistema || 'SINAN'} — ${state.selectedConjunto?.nome || 'Conjunto'}`;
+          state.nomeConjunto = document.getElementById('datasetName')?.value.trim() || state.nomeConjunto.trim();
+          if (!state.nomeConjunto) {
+            showToast('Informe um nome para o conjunto de dados');
+            return;
+          }
+          const nomeDisponibilizacao = state.nomeConjunto;
+          const request = {
+            nome: nomeDisponibilizacao,
+            secretaria: state.selectedSecretaria,
+            sistema: state.selectedSistema,
+            variaveis: [...state.selectedVariables],
+            periodo: { ...state.periodo },
+            frequencia: state.atualizacao,
+            dadoCongelado: state.atualizacao === 'Dado congelado',
+            destino: state.destino,
+            recipient: getAuthenticatedUserEmail()
+          };
+          const delivery = sendDatasetByEmail(request);
           state.disponibilizacoes.unshift({
             nome: nomeDisponibilizacao,
             secretaria: state.selectedSecretaria,
             sistema: state.selectedSistema,
             data: new Date().toLocaleDateString('pt-BR'),
             frequencia: state.atualizacao,
+            dadoCongelado: state.atualizacao === 'Dado congelado',
             formato: state.destino,
             destino: state.destino,
             status: 'Ativa',
             ultimaAtualizacao: 'Agora'
           });
-          showToast('Disponibilização criada com sucesso');
-          renderDisponibilizacoes();
+          state.lastRequest = { ...request, delivery };
+          state.builderComplete = true;
+          renderBuilder();
+          showToast('Solicitação criada com sucesso');
         };
 
         page.querySelectorAll('[data-step-action]').forEach(el => {
@@ -1879,20 +1967,19 @@
               const nextSec = secretarias.find(s => s.sigla === value);
               state.selectedSistema = nextSec?.sistemas[0]?.nome || state.selectedSistema;
             }
-            if (action === 'sistema') state.selectedSistema = value;
-            if (action === 'conjunto') {
-              const nextSet = (conjuntosPorSistema[state.selectedSistema] || []).find(item => item.id === value);
-              if (nextSet) state.selectedConjunto = nextSet;
+            if (action === 'sistema') {
+              state.selectedSistema = value;
+              state.selectedConjunto = getBuilderDataset(value);
+              state.selectedVariables = state.selectedConjunto.variaveis.slice(0, 4).map(variable => variable.nome);
             }
             if (action === 'periodo') state.periodo.mode = value;
             if (action === 'atualizacao') state.atualizacao = value;
             if (action === 'destino') state.destino = value;
-            if (action === 'recorte') state.filters.municipio = value === 'Município' ? 'Recorte ativo' : state.filters.municipio;
             renderBuilder();
           });
         });
 
-        if (state.builderStepIndex === 3) {
+        if (state.builderStepIndex === 2) {
           const varSearch = document.getElementById('varSearchInput');
           if (varSearch) {
             varSearch.addEventListener('input', (e) => {
@@ -1920,6 +2007,14 @@
                 });
               });
             });
+          }
+          if (state.builderStepIndex === 3) {
+            document.getElementById('periodStart')?.addEventListener('input', event => { state.periodo.start = event.target.value; });
+            document.getElementById('periodEnd')?.addEventListener('input', event => { state.periodo.end = event.target.value; });
+            document.getElementById('periodYear')?.addEventListener('input', event => { state.periodo.year = event.target.value; });
+          }
+          if (state.builderStepIndex === 6) {
+            document.getElementById('datasetName')?.addEventListener('input', event => { state.nomeConjunto = event.target.value; });
           }
 
           document.getElementById('selectAllVarsBtn')?.addEventListener('click', () => {

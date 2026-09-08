@@ -481,7 +481,7 @@
         selectedConjunto: null,
         selectedVariables: [],
         filters: { municipio: 'Todos', regiao: 'Todas', situacao: 'Todas' },
-        periodo: { mode: 'intervalo', start: '', end: '', year: '' },
+        periodo: { mode: 'intervalo', start: '', end: '', year: '', month: '' },
         atualizacao: 'Diária',
         destino: 'E-mail do usuário',
         nomeConjunto: '',
@@ -748,6 +748,14 @@
       function formatBuilderDate(value) {
         if (!value) return '';
         return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(`${value}T00:00:00Z`));
+      }
+
+      function formatBuilderMonth(value) {
+        if (!value) return 'Não informado';
+        const [year, month] = value.split('-');
+        if (!year || !month) return 'Não informado';
+        const date = new Date(Number(year), Number(month) - 1, 1);
+        return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(date).replace(/^./, char => char.toUpperCase());
       }
 
       function sendDatasetByEmail(request) {
@@ -1668,7 +1676,7 @@
         state.selectedSistema = sistemaDefault;
         state.selectedConjunto = setDefault;
         state.selectedVariables = setDefault.variaveis.slice(0, 4).map(v => v.nome);
-        state.periodo = { mode: 'intervalo', start: '', end: '', year: '' };
+        state.periodo = { mode: 'intervalo', start: '', end: '', year: '', month: '' };
         state.atualizacao = 'Diária';
         state.destino = 'E-mail do usuário';
         state.nomeConjunto = '';
@@ -1691,7 +1699,9 @@
 
         const periodLabel = state.periodo.mode === 'ano'
           ? (state.periodo.year ? `Ano ${state.periodo.year}` : 'Não informado')
-          : (state.periodo.start && state.periodo.end ? `${formatBuilderDate(state.periodo.start)} a ${formatBuilderDate(state.periodo.end)}` : 'Não informado');
+          : state.periodo.mode === 'mes'
+            ? (state.periodo.month ? `Mês ${formatBuilderMonth(state.periodo.month)}` : 'Não informado')
+            : (state.periodo.start && state.periodo.end ? `${formatBuilderDate(state.periodo.start)} a ${formatBuilderDate(state.periodo.end)}` : 'Não informado');
         const summary = [
           ['Secretaria', sec.sigla],
           ['Sistema', sistema.nome],
@@ -1775,12 +1785,18 @@
                 <p>Escolha o intervalo temporal que será disponibilizado.</p>
                 <div class="option-grid">
                   <div class="option-card ${state.periodo.mode === 'intervalo' ? 'active' : ''}" data-step-action="periodo" data-value="intervalo"><strong>◉ Intervalo específico</strong><small>Informe a data inicial e final.</small></div>
+                  <div class="option-card ${state.periodo.mode === 'mes' ? 'active' : ''}" data-step-action="periodo" data-value="mes"><strong>◯ Mês específico</strong><small>Selecione um mês completo.</small></div>
                   <div class="option-card ${state.periodo.mode === 'ano' ? 'active' : ''}" data-step-action="periodo" data-value="ano"><strong>◯ Ano específico</strong><small>Selecione um ano completo.</small></div>
                 </div>
                 ${state.periodo.mode === 'ano' ? `
                   <div style="margin-top:14px;max-width:240px;">
                     <label class="field-label" for="periodYear">Ano</label>
                     <input class="input" id="periodYear" type="number" min="1900" max="2100" value="${state.periodo.year}" placeholder="Ex.: 2025">
+                  </div>
+                ` : state.periodo.mode === 'mes' ? `
+                  <div style="margin-top:14px;max-width:240px;">
+                    <label class="field-label" for="periodMonth">Mês</label>
+                    <input class="input" id="periodMonth" type="month" value="${state.periodo.month}" placeholder="Selecione o mês">
                   </div>
                 ` : `
                   <div class="period-fields">
@@ -1894,6 +1910,7 @@
               state.periodo.start = document.getElementById('periodStart')?.value || '';
               state.periodo.end = document.getElementById('periodEnd')?.value || '';
               state.periodo.year = document.getElementById('periodYear')?.value || '';
+              state.periodo.month = document.getElementById('periodMonth')?.value || '';
             }
             if (nextStep === 1 && !state.selectedSecretaria) {
               showToast('Selecione uma secretaria');
@@ -1910,6 +1927,10 @@
             if (nextStep === 4) {
               if (state.periodo.mode === 'intervalo' && (!state.periodo.start || !state.periodo.end || state.periodo.start > state.periodo.end)) {
                 showToast('Informe um intervalo de datas válido');
+                return;
+              }
+              if (state.periodo.mode === 'mes' && !state.periodo.month) {
+                showToast('Informe um mês válido');
                 return;
               }
               if (state.periodo.mode === 'ano' && !/^(19|20)\d{2}$/.test(state.periodo.year)) {
@@ -2008,15 +2029,6 @@
               });
             });
           }
-          if (state.builderStepIndex === 3) {
-            document.getElementById('periodStart')?.addEventListener('input', event => { state.periodo.start = event.target.value; });
-            document.getElementById('periodEnd')?.addEventListener('input', event => { state.periodo.end = event.target.value; });
-            document.getElementById('periodYear')?.addEventListener('input', event => { state.periodo.year = event.target.value; });
-          }
-          if (state.builderStepIndex === 6) {
-            document.getElementById('datasetName')?.addEventListener('input', event => { state.nomeConjunto = event.target.value; });
-          }
-
           document.getElementById('selectAllVarsBtn')?.addEventListener('click', () => {
             state.selectedVariables = conjunto.variaveis.map(v => v.nome);
             renderBuilder();
@@ -2033,6 +2045,17 @@
               state.selectedVariables = [...next];
             });
           });
+        }
+
+        if (state.builderStepIndex === 3) {
+          document.getElementById('periodStart')?.addEventListener('input', event => { state.periodo.start = event.target.value; });
+          document.getElementById('periodEnd')?.addEventListener('input', event => { state.periodo.end = event.target.value; });
+          document.getElementById('periodYear')?.addEventListener('input', event => { state.periodo.year = event.target.value; });
+          document.getElementById('periodMonth')?.addEventListener('input', event => { state.periodo.month = event.target.value; });
+        }
+
+        if (state.builderStepIndex === 6) {
+          document.getElementById('datasetName')?.addEventListener('input', event => { state.nomeConjunto = event.target.value; });
         }
 
         renderPage('builder');

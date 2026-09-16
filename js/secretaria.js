@@ -65,7 +65,6 @@ function renderSecretariaDashboard() {
         </div>
         <div class="dataset-actions">
           <button class="btn btn-secondary btn-sm" data-open-dataset="${item.id}">Ver conjunto</button>
-          <button class="btn btn-primary btn-sm">Solicitar acesso</button>
         </div>
       </article>
     `).join('');
@@ -196,7 +195,6 @@ function initFilters() {
         </div>
         <div class="dataset-actions">
           <button class="btn btn-secondary btn-sm" data-open-dataset="${item.id}">Ver conjunto</button>
-          <button class="btn btn-primary btn-sm">Solicitar acesso</button>
         </div>
       </article>
     `).join('') || '<div class="info-block"><strong>Nenhum conjunto encontrado</strong><p>Refine os filtros para visualizar outros registros.</p></div>';

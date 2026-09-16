@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Solicitar Acesso - Portal de Dados SESAU</title>
-    <link rel="stylesheet" href="css/styles.css?v=20260915" />
+    <link rel="stylesheet" href="css/acesso.css?v=20260915" />
   </head>
   <body>
     <div class="top-accent"></div>
@@ -141,8 +141,7 @@
         const requests = JSON.parse(localStorage.getItem('portal-access-requests') || '[]');
         requests.unshift(request);
         localStorage.setItem('portal-access-requests', JSON.stringify(requests));
-        showToast('Solicitação registrada neste protótipo.', 'ok');
-        event.currentTarget.reset();
+        window.location.href = `login.html?email=${encodeURIComponent(request.email)}&next=index.html`;
       });
     </script>
   </body>

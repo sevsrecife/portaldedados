@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portal de Dados SESAU - SEVS</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/sevs.css" />
   </head>
   <body data-secretaria="SEVS">
     <div class="top-accent"></div>
@@ -43,12 +43,11 @@
       <aside class="sidebar" aria-label="Navegação lateral">
         <div class="nav-group">
           <div class="nav-label">Ambiente</div>
-          <button class="nav-item active" type="button">Sistemas de Informação</button>
-          <button class="nav-item" type="button">Catálogo de Dados</button>
-          <button class="nav-item" type="button">Dicionário de Dados</button>
-          <button class="nav-item" type="button">Carga Manual</button>
-          <button class="nav-item" type="button">Criar Dataset</button>
-          <button class="nav-item" type="button">Consultar Datasets</button>
+          <a class="nav-item active" href="#sistemas-informacao">Sistemas de Informação</a>
+          <a class="nav-item" href="#catalogo-dados">Catálogo de Dados</a>
+          <a class="nav-item" href="#carga-manual">Carga Manual</a>
+          <a class="nav-item" href="#criar-dataset">Criar Dataset</a>
+          <a class="nav-item" href="#consultar-datasets">Consultar Datasets</a>
         </div>
         <div class="sidecard">
           <strong>Política institucional</strong>
@@ -61,32 +60,52 @@
           <div class="page-header">
             <div>
               <div class="eyebrow">Secretaria executiva</div>
-              <h1 id="secretaria-name">Carregando...</h1>
-              <p class="lead" id="secretaria-description"></p>
+              <h1>Secretaria Executiva de Vigilância em Saúde</h1>
+              <p class="lead">Dados epidemiológicos, vigilância e registros de eventos em saúde pública.</p>
             </div>
             <div class="dataset-actions">
               <a class="btn btn-secondary" href="index.html">← Voltar</a>
-              <button class="btn btn-primary" type="button">+ Solicitar acesso</button>
             </div>
           </div>
 
           <div class="stat-grid" data-summary></div>
 
-          <section class="section">
+          <section class="section" id="sistemas-informacao">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Sistemas de Informação</div>
                 <h2>Sistemas vinculados</h2>
               </div>
             </div>
-            <div class="card-grid" data-sistemas></div>
+            <div class="card-grid">
+              <div class="system-card">
+                <div class="sigla">SIM</div>
+                <h3>SIM</h3>
+                <p>Sistema de Informação sobre Mortalidade</p>
+                </div>
+              <div class="system-card">
+                <div class="sigla">SINASC</div>
+                <h3>SINASC</h3>
+                <p>Sistema de Informação sobre Nascidos Vivos</p>
+              </div>
+              <div class="system-card">
+                <div class="sigla">SINAN</div>
+                <h3>SINAN</h3>
+                <p>Sistema de Informação de Agravos e Notificação</p>
+                </div>
+              <div class="system-card">
+                <div class="sigla">REDCAP</div>
+                <h3>REDCAP</h3>
+                <p>Captura Eletrônica de Dados de Pesquisa</p>
+                </div>
+            </div>
           </section>
 
-          <section class="section">
+          <section class="section" id="catalogo-dados">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Catálogo de Dados</div>
-                <h2>Conjuntos de dados disponíveis</h2>
+                <h2>Conjuntos de dados criados</h2>
               </div>
             </div>
             <form class="filter-bar" data-catalog-filters>
@@ -120,17 +139,7 @@
             <div class="dataset-list" data-catalog-list></div>
           </section>
 
-          <section class="section">
-            <div class="page-header">
-              <div>
-                <div class="eyebrow">Dicionário de Dados</div>
-                <h2>Campos e conceitos relevantes</h2>
-              </div>
-            </div>
-            <div class="info-stack" data-dictionary-list></div>
-          </section>
-
-          <section class="section">
+          <section class="section" id="carga-manual">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Carga Manual</div>
@@ -146,6 +155,10 @@
                 <div class="file-meta">
                   <span class="text-muted" data-file-name>Arquivo selecionado: nenhum</span>
                 </div>
+                <div class="field">
+                  <label for="manual-columns">Títulos das colunas</label>
+                  <input id="manual-columns" class="input" data-manual-columns placeholder="Ex: Município, Data, Resultado" />
+                </div>
                 <div class="dataset-actions">
                   <button class="btn btn-secondary" type="button" data-validate-upload>Validar arquivo</button>
                   <button class="btn btn-primary" type="button" data-process-upload>Processar</button>
@@ -154,28 +167,26 @@
             </div>
           </section>
 
-          <section class="section">
+          <section class="section" id="criar-dataset">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Criar conjunto de dados</div>
-                <h2>Fluxo de publicação simulada</h2>
+                <h2>Fluxo de criação de conjunto de dados</h2>
               </div>
             </div>
             <div class="panel">
-              <form id="dataset-builder">
+              <form id="dataset-builder" data-period-filter>
                 <div class="wizard-steps">
                   <span class="step-indicator active">1. Identificação</span>
                   <span class="step-indicator">2. Variáveis</span>
                   <span class="step-indicator">3. Período</span>
                   <span class="step-indicator">4. Disponibilização</span>
-                  <span class="step-indicator">5. Governança</span>
-                  <span class="step-indicator">6. Revisão</span>
+                  <span class="step-indicator">5. Revisão</span>
                 </div>
 
                 <div class="wizard-step active">
                   <div class="form-grid">
                     <div class="field"><label for="datasetNome">Nome</label><input id="datasetNome" class="input" name="datasetNome" placeholder="Ex: Indicadores de monitoramento" /></div>
-                    <div class="field"><label for="datasetSecretaria">Secretaria</label><input id="datasetSecretaria" class="input" name="datasetSecretaria" value="SEVS" /></div>
                     <div class="field"><label for="datasetSistema">Sistema</label><select id="datasetSistema" class="input" name="datasetSistema"><option>SIM</option><option>SINASC</option><option>SINAN</option><option>REDCap</option></select></div>
                     <div class="field"><label for="datasetResponsavel">Responsável</label><input id="datasetResponsavel" class="input" name="datasetResponsavel" value="Ana Beatriz Santos" /></div>
                     <div class="field field--full"><label for="datasetDescricao">Descrição</label><textarea id="datasetDescricao" class="input" name="datasetDescricao" placeholder="Descreva o conteúdo e a finalidade do conjunto."></textarea></div>
@@ -184,33 +195,171 @@
 
                 <div class="wizard-step">
                   <div class="form-grid">
-                    <div class="field field--full"><label>Variáveis</label><input class="input" name="variaveis" type="number" value="10" /></div>
-                    <div class="field field--full"><label>Lista de variáveis</label><input class="input" value="Município, Data de notificação, Idade, Resultado, Evolução" /></div>
+                    <div class="field field--full" data-standard-variables><label>Variáveis</label><input class="input" name="variaveis" type="number" value="10" /></div>
+                    <div class="field field--full" data-standard-variables><label for="listaVariaveis">Lista de variáveis</label><select id="listaVariaveis" class="input" name="listaVariaveis"><option>Município</option><option>Data de notificação</option><option>Idade</option><option>Resultado</option><option>Evolução</option></select></div>
+                    <div class="field field--full hidden" data-sinan-fields>
+                      <label for="agravos">Agravos</label>
+                      <select id="agravos" class="input" name="agravos" multiple size="8">
+                        <option value="B24 - AIDS ADULTO">B24 - AIDS ADULTO</option>
+                        <option value="B24 - AIDS CRIANÇA">B24 - AIDS CRIANÇA</option>
+                        <option value="Z20.9 - ACIDENTE DE TRABALHO COM EXPOSICAO A MATERIAL BIOLOGICO">Z20.9 - ACIDENTE DE TRABALHO COM EXPOSICAO A MATERIAL BIOLOGICO</option>
+                        <option value="Y96 - ACIDENTE DE TRABALHO GRAVE">Y96 - ACIDENTE DE TRABALHO GRAVE</option>
+                        <option value="X29 - ACIDENTE POR ANIMAIS PEÇONHENTOS">X29 - ACIDENTE POR ANIMAIS PEÇONHENTOS</option>
+                        <option value="W64 - ATENDIMENTO ANTI-RÁBICO">W64 - ATENDIMENTO ANTI-RÁBICO</option>
+                        <option value="A05.1 - BOTULISMO">A05.1 - BOTULISMO</option>
+                        <option value="C80 - CÂNCER RELACIONADO AO TRABALHO">C80 - CÂNCER RELACIONADO AO TRABALHO</option>
+                        <option value="A00.9 - CÓLERA">A00.9 - CÓLERA</option>
+                        <option value="A37.9 - COQUELUCHE">A37.9 - COQUELUCHE</option>
+                        <option value="A90 - DENGUE">A90 - DENGUE</option>
+                        <option value="L98.9 - DERMATOSES OCUPACIONAIS">L98.9 - DERMATOSES OCUPACIONAIS</option>
+                        <option value="A36.9 - DIFTERIA">A36.9 - DIFTERIA</option>
+                        <option value="B57.1 - DOENÇA DE CHAGAS AGUDA">B57.1 - DOENÇA DE CHAGAS AGUDA</option>
+                        <option value="B09 - DOENÇAS EXANTEMÁTICAS">B09 - DOENÇAS EXANTEMÁTICAS</option>
+                        <option value="B65.9 - ESQUISTOSSOMOSE">B65.9 - ESQUISTOSSOMOSE</option>
+                        <option value="A95.9 - FEBRE AMARELA">A95.9 - FEBRE AMARELA</option>
+                        <option value="A92.3 - FEBRE DO NILO">A92.3 - FEBRE DO NILO</option>
+                        <option value="A77.9 - FEBRE MACULOSA / RICKETTSIOSES">A77.9 - FEBRE MACULOSA / RICKETTSIOSES</option>
+                        <option value="A01.0 - FEBRE TIFOIDE">A01.0 - FEBRE TIFOIDE</option>
+                        <option value="Z21 - GESTANTE HIV">Z21 - GESTANTE HIV</option>
+                        <option value="A30.9 - HANSENÍASE">A30.9 - HANSENÍASE</option>
+                        <option value="A98.8 - HANTAVIROSE">A98.8 - HANTAVIROSE</option>
+                        <option value="B19 - HEPATITES VIRAIS">B19 - HEPATITES VIRAIS</option>
+                        <option value="J11 - INFLUENZA HUMANA POR NOVO SUBTIPO (PANDÊMICO)">J11 - INFLUENZA HUMANA POR NOVO SUBTIPO (PANDÊMICO)</option>
+                        <option value="T65.9 - INTOXICAÇÃO EXÓGENA">T65.9 - INTOXICAÇÃO EXÓGENA</option>
+                        <option value="B55.1 - LEISHMANIOSE TEGUMENTAR AMERICANA">B55.1 - LEISHMANIOSE TEGUMENTAR AMERICANA</option>
+                        <option value="B55.0 - LEISHMANIOSE VISCERAL">B55.0 - LEISHMANIOSE VISCERAL</option>
+                        <option value="A27.9 - LEPTOSPIROSE">A27.9 - LEPTOSPIROSE</option>
+                        <option value="Z57.9 - LER DORT">Z57.9 - LER DORT</option>
+                        <option value="B54 - MALÁRIA">B54 - MALÁRIA</option>
+                        <option value="G03.9 - MENINGITE">G03.9 - MENINGITE</option>
+                        <option value="H83.3 - PAIR">H83.3 - PAIR</option>
+                        <option value="A80.9 - PARALISIA FLÁCIDA AGUDA POLIOMIELITE">A80.9 - PARALISIA FLÁCIDA AGUDA POLIOMIELITE</option>
+                        <option value="A20.9 - PESTE">A20.9 - PESTE</option>
+                        <option value="J64 - PNEUMOCONIOSE">J64 - PNEUMOCONIOSE</option>
+                        <option value="A82.9 - RAIVA HUMANA">A82.9 - RAIVA HUMANA</option>
+                        <option value="A08.0 - ROTAVÍRUS">A08.0 - ROTAVÍRUS</option>
+                        <option value="A50.9 - SÍFILIS CONGÊNITA">A50.9 - SÍFILIS CONGÊNITA</option>
+                        <option value="O98.1 - SÍFILIS EM GESTANTE">O98.1 - SÍFILIS EM GESTANTE</option>
+                        <option value="P35.0 - SÍNDROME DA RUBÉOLA CONGÊNITA">P35.0 - SÍNDROME DA RUBÉOLA CONGÊNITA</option>
+                        <option value="A35 - TÉTANO ACIDENTAL">A35 - TÉTANO ACIDENTAL</option>
+                        <option value="A33 - TÉTANO NEONATAL">A33 - TÉTANO NEONATAL</option>
+                        <option value="F99 - TRANSTORNO MENTAL">F99 - TRANSTORNO MENTAL</option>
+                        <option value="A16.9 - TUBERCULOSE">A16.9 - TUBERCULOSE</option>
+                        <option value="Y09 - VIOLÊNCIA INTERPESSOAL/AUTOPROVOCADA">Y09 - VIOLÊNCIA INTERPESSOAL/AUTOPROVOCADA</option>
+                        <option value="INQUÉRITO TRACOMA">INQUÉRITO TRACOMA</option>
+                        <option value="DTA - DOENÇAS TRANSMITIDAS POR ALIMENTOS">DTA - DOENÇAS TRANSMITIDAS POR ALIMENTOS</option>
+                      </select>
+                      <small class="text-muted">Use Ctrl ou Command para selecionar um ou mais agravos.</small>
+                    </div>
+                    <div class="field field--full hidden" data-sinan-fields>
+                      <label>Campos das tabelas de agravo</label>
+                      <div class="checkbox-grid">
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Data de notificação" /><span>Data de notificação</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Data dos primeiros sintomas" /><span>Data dos primeiros sintomas</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Município de residência" /><span>Município de residência</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Unidade notificadora" /><span>Unidade notificadora</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Sexo" /><span>Sexo</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Faixa etária" /><span>Faixa etária</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Raça/cor" /><span>Raça/cor</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Critério de confirmação" /><span>Critério de confirmação</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Evolução do caso" /><span>Evolução do caso</span></label>
+                        <label class="check-card"><input type="checkbox" name="variaveisSinan" value="Encerramento" /><span>Encerramento</span></label>
+                      </div>
+                    </div>
+                    <div class="field field--full hidden" data-sim-fields>
+                      <div class="form-section-title"><span>1</span>Período / Tempo</div>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="anoObitoInicio">Ano do óbito - início</label>
+                      <input id="anoObitoInicio" class="input" name="anoObitoInicio" type="number" min="1900" max="2100" placeholder="Ex: 2020" />
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="anoObitoFim">Ano do óbito - fim</label>
+                      <input id="anoObitoFim" class="input" name="anoObitoFim" type="number" min="1900" max="2100" placeholder="Ex: 2023" />
+                    </div>
+                    <div class="field field--full hidden" data-sim-fields>
+                      <div class="form-section-title"><span>2</span>Geografia / Localização</div>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="ufObito">UF</label>
+                      <select id="ufObito" class="input" name="ufObito">
+                        <option value="">Selecione a UF</option>
+                        <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option>
+                      </select>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="municipioObito">Município</label>
+                      <input id="municipioObito" class="input" name="municipioObito" placeholder="Código IBGE do município" />
+                    </div>
+                    <div class="field field--full hidden" data-sim-fields>
+                      <label for="regionalSaude">Região / Macrorregião / Regional de Saúde</label>
+                      <input id="regionalSaude" class="input" name="regionalSaude" placeholder="Informe o agrupamento territorial de saúde" />
+                    </div>
+                    <div class="field field--full hidden" data-sim-fields>
+                      <div class="form-section-title"><span>3</span>Causa da Morte (CID-10)</div>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="capituloCid">Capítulo da CID-10</label>
+                      <select id="capituloCid" class="input" name="capituloCid">
+                        <option value="">Selecione o capítulo</option>
+                        <option>Capítulo I - Doenças infecciosas e parasitárias</option>
+                        <option>Capítulo II - Neoplasias</option>
+                        <option>Capítulo IX - Doenças do aparelho circulatório</option>
+                        <option>Capítulo X - Doenças do aparelho respiratório</option>
+                        <option>Capítulo XVIII - Sintomas, sinais e achados anormais</option>
+                        <option>Capítulo XX - Causas externas de morbidade e mortalidade</option>
+                      </select>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="grupoCid">Grupo / Categoria da CID-10</label>
+                      <input id="grupoCid" class="input" name="grupoCid" placeholder="Ex: I21 - Infarto Agudo do Miocárdio" />
+                    </div>
+                    <div class="field field--full hidden" data-sim-fields>
+                      <label for="causaBasica">Causa básica</label>
+                      <input id="causaBasica" class="input" name="causaBasica" placeholder="Informe a causa geradora da morte" />
+                    </div>
+                    <div class="field field--full hidden" data-sim-fields>
+                      <div class="form-section-title"><span>4</span>Perfil Demográfico</div>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="sexoObito">Sexo</label>
+                      <select id="sexoObito" class="input" name="sexoObito"><option value="">Selecione</option><option>Masculino</option><option>Feminino</option><option>Ignorado</option></select>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="faixaEtariaObito">Faixa etária / Idade</label>
+                      <select id="faixaEtariaObito" class="input" name="faixaEtariaObito"><option value="">Selecione</option><option>Menor de 1 ano</option><option>1 a 4 anos</option><option>5 a 14 anos</option><option>15 a 24 anos</option><option>25 a 44 anos</option><option>45 a 64 anos</option><option>65 anos ou mais</option></select>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="racaCorObito">Raça / Cor</label>
+                      <select id="racaCorObito" class="input" name="racaCorObito"><option value="">Selecione</option><option>Branca</option><option>Preta</option><option>Parda</option><option>Amarela</option><option>Indígena</option><option>Ignorado</option></select>
+                    </div>
+                    <div class="field field--full hidden" data-sim-fields>
+                      <div class="form-section-title"><span>5</span>Outros Filtros Estruturais</div>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="localOcorrencia">Local de ocorrência</label>
+                      <select id="localOcorrencia" class="input" name="localOcorrencia"><option value="">Selecione</option><option>Hospital</option><option>Domicílio</option><option>Via pública</option><option>Outro estabelecimento de saúde</option></select>
+                    </div>
+                    <div class="field hidden" data-sim-fields>
+                      <label for="tipoObito">Tipo de óbito</label>
+                      <select id="tipoObito" class="input" name="tipoObito"><option value="">Selecione</option><option>Óbitos gerais</option><option>Óbitos fetais</option><option>Óbitos infantis</option></select>
+                    </div>
                   </div>
                 </div>
 
                 <div class="wizard-step">
                   <div class="form-grid">
-                    <div class="field"><label for="periodoInicio">Período inicial</label><input id="periodoInicio" class="input" name="periodoInicio" type="text" value="2024" /></div>
-                    <div class="field"><label for="periodoFim">Período final</label><input id="periodoFim" class="input" name="periodoFim" type="text" value="2025" /></div>
-                    <div class="field"><label for="frequencia">Frequência</label><select id="frequencia" class="input" name="frequencia"><option>Mensal</option><option>Semanal</option><option>Diária</option></select></div>
-                    <div class="field"><label for="ultimaCarga">Última carga</label><input id="ultimaCarga" class="input" name="ultimaCarga" type="date" value="2025-06-30" /></div>
+                    <div class="field"><label for="periodoModo">Tipo de período</label><select id="periodoModo" class="input" name="periodoModo"><option value="ano">Ano específico</option><option value="a-partir">A partir de um ano até a data atual</option></select></div>
+                    <div class="field"><label for="periodoInicio">Ano inicial</label><input id="periodoInicio" class="input" name="periodoInicio" type="number" min="1900" max="2100" value="2024" /></div>
+                    <div class="field hidden"><label for="periodoFim">Data atual</label><input id="periodoFim" class="input" name="periodoFim" type="date" data-periodo-atual readonly /></div>
+                    <div class="field"><label for="frequencia">Frequência de carga</label><select id="frequencia" class="input" name="frequencia"><option>Mensal</option><option>Semanal</option><option>Diária</option><option>Anual</option></select></div>
                   </div>
                 </div>
 
                 <div class="wizard-step">
                   <div class="form-grid">
                     <div class="field"><label>Formato</label><select class="input" name="formato"><option>CSV</option><option>XLS</option><option>API</option><option>Power BI</option><option>Qlik</option></select></div>
-                    <div class="field"><label>Disponibilização</label><select class="input" name="disponibilizacao"><option>Portal</option><option>E-mail</option><option>Conector BI</option><option>Banco de Dados</option></select></div>
-                  </div>
-                </div>
-
-                <div class="wizard-step">
-                  <div class="form-grid">
-                    <div class="field"><label>Nível de acesso</label><select class="input" name="nivelAcesso"><option>Uso institucional</option><option>Autorização por demanda</option><option>Restrito</option></select></div>
-                    <div class="field"><label>Finalidade</label><input class="input" name="finalidade" value="Monitoramento e gestão" /></div>
-                    <div class="field"><label>Necessidade de aprovação</label><select class="input" name="aprovacao"><option>Sim</option><option>Não</option></select></div>
-                    <div class="field"><label>Classificação</label><select class="input" name="classificacao"><option>Interno</option><option>Restrito</option><option>Confidencial</option></select></div>
+                    <div class="field"><label>Disponibilização</label><select class="input" name="disponibilizacao"><option>E-mail</option><option>Conector BI</option><option>Banco de Dados</option></select></div>
                   </div>
                 </div>
 
@@ -229,7 +378,7 @@
             </div>
           </section>
 
-          <section class="section">
+          <section class="section" id="consultar-datasets">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Consultar conjuntos</div>
@@ -253,23 +402,7 @@
 
     <div id="dataset-modal" class="modal hidden"></div>
 
-    <script src="data/secretarias.js"></script>
-    <script src="data/datasets.js"></script>
-    <script src="data/dicionario.js"></script>
-    <script src="data/usuarios.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/secretaria.js"></script>
-    <script src="js/criar-dataset.js"></script>
-    <script src="js/carga.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const key = document.body.dataset.secretaria || 'SEVS';
-        const secret = window.SECRETARIAS[key];
-        if (secret) {
-          document.getElementById('secretaria-name').textContent = secret.nome;
-          document.getElementById('secretaria-description').textContent = secret.descricao;
-        }
-      });
-    </script>
+    <script src="js/sevs.js"></script>
   </body>
 </html>

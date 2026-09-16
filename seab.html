@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portal de Dados SESAU - SEAB</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/seab.css" />
   </head>
   <body data-secretaria="SEAB">
     <div class="top-accent"></div>
@@ -43,12 +43,11 @@
       <aside class="sidebar" aria-label="Navegação lateral">
         <div class="nav-group">
           <div class="nav-label">Ambiente</div>
-          <button class="nav-item active" type="button">Sistemas de Informação</button>
-          <button class="nav-item" type="button">Catálogo de Dados</button>
-          <button class="nav-item" type="button">Dicionário de Dados</button>
-          <button class="nav-item" type="button">Carga Manual</button>
-          <button class="nav-item" type="button">Criar Dataset</button>
-          <button class="nav-item" type="button">Consultar Datasets</button>
+          <a class="nav-item active" href="#sistemas-informacao">Sistemas de Informação</a>
+          <a class="nav-item" href="#catalogo-dados">Catálogo de Dados</a>
+          <a class="nav-item" href="#carga-manual">Carga Manual</a>
+          <a class="nav-item" href="#criar-dataset">Criar Dataset</a>
+          <a class="nav-item" href="#consultar-datasets">Consultar Datasets</a>
         </div>
         <div class="sidecard">
           <strong>Política institucional</strong>
@@ -61,28 +60,52 @@
           <div class="page-header">
             <div>
               <div class="eyebrow">Secretaria executiva</div>
-              <h1 id="secretaria-name">Carregando...</h1>
-              <p class="lead" id="secretaria-description"></p>
+              <h1>Secretaria Executiva de Atenção Básica</h1>
+              <p class="lead">Dados de atenção primária e monitoramento do cuidado básico.</p>
             </div>
             <div class="dataset-actions">
               <a class="btn btn-secondary" href="index.html">← Voltar</a>
-              <button class="btn btn-primary" type="button">+ Solicitar acesso</button>
             </div>
           </div>
 
           <div class="stat-grid" data-summary></div>
 
-          <section class="section">
+          <section class="section" id="sistemas-informacao">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Sistemas de Informação</div>
                 <h2>Sistemas vinculados</h2>
               </div>
             </div>
-            <div class="card-grid" data-sistemas></div>
+            <div class="card-grid">
+              <div class="system-card">
+                <div class="sigla">e-SUS APS</div>
+                <h3>e-SUS APS</h3>
+                <p>Sistema de gestão da Atenção Primária à Saúde</p>
+                <span class="pill pill--blue">Sistema</span>
+              </div>
+              <div class="system-card">
+                <div class="sigla">SISAB</div>
+                <h3>SISAB</h3>
+                <p>Sistema de Informação em Saúde para a Atenção Básica</p>
+                <span class="pill pill--blue">Sistema</span>
+              </div>
+              <div class="system-card">
+                <div class="sigla">TABNET</div>
+                <h3>TABNET</h3>
+                <p>Ferramenta de tabulação de dados em saúde do DATASUS</p>
+                <span class="pill pill--blue">Sistema</span>
+              </div>
+              <div class="system-card">
+                <div class="sigla">SISVAN</div>
+                <h3>SISVAN</h3>
+                <p>Sistema de Vigilância Alimentar e Nutricional</p>
+                <span class="pill pill--blue">Sistema</span>
+              </div>
+            </div>
           </section>
 
-          <section class="section">
+          <section class="section" id="catalogo-dados">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Catálogo de Dados</div>
@@ -93,14 +116,10 @@
               <input class="input" type="search" data-filter-search placeholder="Pesquisar por nome, descrição, sistema ou responsável" />
               <select class="input" data-filter-system>
                 <option value="">Sistema</option>
-                <option value="SIM">SIM</option>
-                <option value="SINASC">SINASC</option>
-                <option value="SINAN">SINAN</option>
-                <option value="REDCap">REDCap</option>
                 <option value="e-SUS APS">e-SUS APS</option>
                 <option value="SISAB">SISAB</option>
-                <option value="SIAF">SIAF</option>
-                <option value="Painel Integrado">Painel Integrado</option>
+                <option value="TABNET">TABNET</option>
+                <option value="SISVAN">SISVAN</option>
               </select>
               <select class="input" data-filter-format>
                 <option value="">Formato</option>
@@ -120,17 +139,7 @@
             <div class="dataset-list" data-catalog-list></div>
           </section>
 
-          <section class="section">
-            <div class="page-header">
-              <div>
-                <div class="eyebrow">Dicionário de Dados</div>
-                <h2>Campos e conceitos relevantes</h2>
-              </div>
-            </div>
-            <div class="info-stack" data-dictionary-list></div>
-          </section>
-
-          <section class="section">
+          <section class="section" id="carga-manual">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Carga Manual</div>
@@ -146,6 +155,10 @@
                 <div class="file-meta">
                   <span class="text-muted" data-file-name>Arquivo selecionado: nenhum</span>
                 </div>
+                <div class="field">
+                  <label for="manual-columns">Títulos das colunas</label>
+                  <input id="manual-columns" class="input" data-manual-columns placeholder="Ex: Município, Data, Resultado" />
+                </div>
                 <div class="dataset-actions">
                   <button class="btn btn-secondary" type="button" data-validate-upload>Validar arquivo</button>
                   <button class="btn btn-primary" type="button" data-process-upload>Processar</button>
@@ -154,29 +167,27 @@
             </div>
           </section>
 
-          <section class="section">
+          <section class="section" id="criar-dataset">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Criar conjunto de dados</div>
-                <h2>Fluxo de publicação simulada</h2>
+                <h2>Fluxo de criação de conjunto de dados</h2>
               </div>
             </div>
             <div class="panel">
-              <form id="dataset-builder">
+              <form id="dataset-builder" data-period-filter>
                 <div class="wizard-steps">
                   <span class="step-indicator active">1. Identificação</span>
                   <span class="step-indicator">2. Variáveis</span>
                   <span class="step-indicator">3. Período</span>
                   <span class="step-indicator">4. Disponibilização</span>
-                  <span class="step-indicator">5. Governança</span>
-                  <span class="step-indicator">6. Revisão</span>
+                  <span class="step-indicator">5. Revisão</span>
                 </div>
 
                 <div class="wizard-step active">
                   <div class="form-grid">
                     <div class="field"><label for="datasetNome">Nome</label><input id="datasetNome" class="input" name="datasetNome" placeholder="Ex: Indicadores de monitoramento" /></div>
-                    <div class="field"><label for="datasetSecretaria">Secretaria</label><input id="datasetSecretaria" class="input" name="datasetSecretaria" value="SEAB" /></div>
-                    <div class="field"><label for="datasetSistema">Sistema</label><select id="datasetSistema" class="input" name="datasetSistema"><option>SIM</option><option>SINASC</option><option>SINAN</option><option>REDCap</option></select></div>
+                    <div class="field"><label for="datasetSistema">Sistema</label><select id="datasetSistema" class="input" name="datasetSistema"><option>e-SUS APS</option><option>SISAB</option><option>TABNET</option><option>SISVAN</option></select></div>
                     <div class="field"><label for="datasetResponsavel">Responsável</label><input id="datasetResponsavel" class="input" name="datasetResponsavel" value="Ana Beatriz Santos" /></div>
                     <div class="field field--full"><label for="datasetDescricao">Descrição</label><textarea id="datasetDescricao" class="input" name="datasetDescricao" placeholder="Descreva o conteúdo e a finalidade do conjunto."></textarea></div>
                   </div>
@@ -185,32 +196,23 @@
                 <div class="wizard-step">
                   <div class="form-grid">
                     <div class="field field--full"><label>Variáveis</label><input class="input" name="variaveis" type="number" value="10" /></div>
-                    <div class="field field--full"><label>Lista de variáveis</label><input class="input" value="Município, Data de notificação, Idade, Resultado, Evolução" /></div>
+                    <div class="field field--full"><label for="listaVariaveis">Lista de variáveis</label><select id="listaVariaveis" class="input" name="listaVariaveis"><option>Município</option><option>Data de notificação</option><option>Idade</option><option>Resultado</option><option>Evolução</option></select></div>
                   </div>
                 </div>
 
                 <div class="wizard-step">
                   <div class="form-grid">
-                    <div class="field"><label for="periodoInicio">Período inicial</label><input id="periodoInicio" class="input" name="periodoInicio" type="text" value="2024" /></div>
-                    <div class="field"><label for="periodoFim">Período final</label><input id="periodoFim" class="input" name="periodoFim" type="text" value="2025" /></div>
-                    <div class="field"><label for="frequencia">Frequência</label><select id="frequencia" class="input" name="frequencia"><option>Mensal</option><option>Semanal</option><option>Diária</option></select></div>
-                    <div class="field"><label for="ultimaCarga">Última carga</label><input id="ultimaCarga" class="input" name="ultimaCarga" type="date" value="2025-06-30" /></div>
+                    <div class="field"><label for="periodoModo">Tipo de período</label><select id="periodoModo" class="input" name="periodoModo"><option value="ano">Ano específico</option><option value="a-partir">A partir de um ano até a data atual</option></select></div>
+                    <div class="field"><label for="periodoInicio">Ano inicial</label><input id="periodoInicio" class="input" name="periodoInicio" type="number" min="1900" max="2100" value="2024" /></div>
+                    <div class="field hidden"><label for="periodoFim">Data atual</label><input id="periodoFim" class="input" name="periodoFim" type="date" data-periodo-atual readonly /></div>
+                    <div class="field"><label for="frequencia">Frequência de carga</label><select id="frequencia" class="input" name="frequencia"><option>Mensal</option><option>Semanal</option><option>Diária</option><option>Anual</option></select></div>
                   </div>
                 </div>
 
                 <div class="wizard-step">
                   <div class="form-grid">
                     <div class="field"><label>Formato</label><select class="input" name="formato"><option>CSV</option><option>XLS</option><option>API</option><option>Power BI</option><option>Qlik</option></select></div>
-                    <div class="field"><label>Disponibilização</label><select class="input" name="disponibilizacao"><option>Portal</option><option>E-mail</option><option>Conector BI</option><option>Banco de Dados</option></select></div>
-                  </div>
-                </div>
-
-                <div class="wizard-step">
-                  <div class="form-grid">
-                    <div class="field"><label>Nível de acesso</label><select class="input" name="nivelAcesso"><option>Uso institucional</option><option>Autorização por demanda</option><option>Restrito</option></select></div>
-                    <div class="field"><label>Finalidade</label><input class="input" name="finalidade" value="Monitoramento e gestão" /></div>
-                    <div class="field"><label>Necessidade de aprovação</label><select class="input" name="aprovacao"><option>Sim</option><option>Não</option></select></div>
-                    <div class="field"><label>Classificação</label><select class="input" name="classificacao"><option>Interno</option><option>Restrito</option><option>Confidencial</option></select></div>
+                    <div class="field"><label>Disponibilização</label><select class="input" name="disponibilizacao"><option>E-mail</option><option>Conector BI</option><option>Banco de Dados</option></select></div>
                   </div>
                 </div>
 
@@ -229,7 +231,7 @@
             </div>
           </section>
 
-          <section class="section">
+          <section class="section" id="consultar-datasets">
             <div class="page-header">
               <div>
                 <div class="eyebrow">Consultar conjuntos</div>
@@ -253,23 +255,7 @@
 
     <div id="dataset-modal" class="modal hidden"></div>
 
-    <script src="data/secretarias.js"></script>
-    <script src="data/datasets.js"></script>
-    <script src="data/dicionario.js"></script>
-    <script src="data/usuarios.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/secretaria.js"></script>
-    <script src="js/criar-dataset.js"></script>
-    <script src="js/carga.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const key = document.body.dataset.secretaria || 'SEVS';
-        const secret = window.SECRETARIAS[key];
-        if (secret) {
-          document.getElementById('secretaria-name').textContent = secret.nome;
-          document.getElementById('secretaria-description').textContent = secret.descricao;
-        }
-      });
-    </script>
+    <script src="js/seab.js"></script>
   </body>
 </html>

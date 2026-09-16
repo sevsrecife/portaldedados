@@ -1,6 +1,6 @@
 window.PortalDatasetBuilder = {
   currentStep: 0,
-  steps: ['Identificação', 'Variáveis', 'Período', 'Disponibilização', 'Governança', 'Revisão'],
+  steps: ['Identificação', 'Variáveis', 'Período', 'Disponibilização', 'Revisão'],
   init() {
     const form = document.getElementById('dataset-builder');
     if (!form) return;
@@ -29,8 +29,8 @@ window.PortalDatasetBuilder = {
       return `
         <div class="detail-grid">
           <div class="kv"><div class="kv-label">Nome</div><div class="kv-value">${data.get('datasetNome') || 'Não informado'}</div></div>
-          <div class="kv"><div class="kv-label">Secretaria</div><div class="kv-value">${data.get('datasetSecretaria') || 'SEVS'}</div></div>
           <div class="kv"><div class="kv-label">Sistema</div><div class="kv-value">${data.get('datasetSistema') || 'SINAN'}</div></div>
+          <div class="kv field--full"><div class="kv-label">Campos selecionados</div><div class="kv-value">${data.get('listaVariaveis') || data.getAll('variaveisSinan').join(', ') || 'Não informado'}</div></div>
           <div class="kv"><div class="kv-label">Responsável</div><div class="kv-value">${data.get('datasetResponsavel') || 'Não informado'}</div></div>
           <div class="kv field--full"><div class="kv-label">Descrição</div><div class="kv-value">${data.get('datasetDescricao') || 'Sem descrição'}</div></div>
         </div>
@@ -60,7 +60,7 @@ window.PortalDatasetBuilder = {
         descricao: data.get('datasetDescricao') || 'Conjunto criado no protótipo.',
         sistema: data.get('datasetSistema') || 'SINAN',
         secretaria: secretariaKey,
-        periodo: `${data.get('periodoInicio') || '2025'} - ${data.get('periodoFim') || '2025'}`,
+        periodo: window.getPeriodLabel(form),
         atualizacao: data.get('frequencia') || 'Mensal',
         variaveis: Number(data.get('variaveis') || 5),
         formatos: [data.get('formato') || 'CSV'],
@@ -70,7 +70,7 @@ window.PortalDatasetBuilder = {
         acesso: data.get('nivelAcesso') || 'Uso institucional',
         governance: data.get('finalidade') || 'Governança local',
         regras: 'Uso de acordo com política institucional.',
-        historico: 'Publicação simulada em sessão atual',
+        historico: 'Criação simulada em sessão atual',
         solicitacoes: 0
       };
 

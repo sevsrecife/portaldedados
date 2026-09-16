@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entrar - Portal de Dados SESAU</title>
+    <link rel="stylesheet" href="css/login.css" />
+  </head>
+  <body>
+    <div class="top-accent"></div>
+
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href="index.html" aria-label="Portal de Dados SESAU">
+          <div class="brand-mark">DB</div>
+          <div class="brand-copy">
+            <div class="brand-title">Portal de Dados SESAU</div>
+            <div class="brand-sub">Gestão de Dados</div>
+          </div>
+        </a>
+        <a class="btn btn-secondary" href="index.html">← Voltar ao portal</a>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="login-card" aria-labelledby="login-title">
+        <div class="eyebrow">Autenticação</div>
+        <h1 id="login-title">Acesse o Portal de Dados</h1>
+        <p class="lead">Entre com seu e-mail institucional e senha para acessar as páginas das secretarias executivas.</p>
+
+        <form id="login-form" class="login-form">
+          <div class="field">
+            <label for="login-email">E-mail institucional</label>
+            <input class="input" id="login-email" name="email" type="email" placeholder="nome@recife.pe.gov.br" required autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="login-password">Senha</label>
+            <input class="input" id="login-password" name="senha" type="password" placeholder="Informe sua senha" required minlength="4" autocomplete="current-password" />
+          </div>
+          <p class="form-error hidden" id="login-error" role="alert"></p>
+          <button class="btn btn-primary" type="submit">Entrar</button>
+        </form>
+
+        <div class="notice-card">
+          Este é um protótipo. O login será validado no navegador e não substitui o serviço institucional de autenticação.
+        </div>
+        <p class="login-footer">Ainda não solicitou acesso? <a href="acesso.html">Preencha o cadastro de solicitação</a>.</p>
+      </section>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/login.js"></script>
+  </body>
+</html>

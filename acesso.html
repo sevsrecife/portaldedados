@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solicitar Acesso - Portal de Dados SESAU</title>
+    <link rel="stylesheet" href="css/styles.css?v=20260915" />
+  </head>
+  <body>
+    <div class="top-accent"></div>
+
+    <header class="site-header">
+      <div class="container">
+        <div class="brand" aria-label="Portal de Dados SESAU">
+          <div class="brand-mark">DB</div>
+          <div class="brand-copy">
+            <div class="brand-title">Portal de Dados SESAU</div>
+            <div class="brand-sub">Gestão de Dados</div>
+          </div>
+        </div>
+
+        <nav class="site-nav" aria-label="Menu principal">
+          <div class="nav-links">
+            <a class="nav-link" href="index.html">Início</a>
+            <a class="nav-link active" href="acesso.html">Solicitar acesso</a>
+          </div>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" aria-label="Notificações">🔔<span class="notification-dot"></span></button>
+          <div class="profile" aria-label="Perfil do usuário">
+            <div class="avatar">AB</div>
+            <div class="profile-copy">
+              <div class="profile-name">Ana B.</div>
+              <div class="profile-role">Administrador</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="content">
+        <section class="hero">
+          <div class="eyebrow">Solicitação de acesso</div>
+          <h1>Acesso ao ambiente de gestão do Portal de Dados</h1>
+          <p class="lead">Preencha as informações abaixo para solicitar acesso às funcionalidades de gestão, governança, controle de distribuição e automatização de conjuntos de dados institucionais.</p>
+        </section>
+
+        <section class="section">
+          <div class="layout-two">
+            <aside class="info-stack" aria-label="Orientações para solicitação">
+              <div class="info-block">
+                <strong>Antes de solicitar</strong>
+                <p>Informe seus dados corretamente e vínculo instituciona, eles serão validados pelos gestores em seguida retornarão com a autorização de acesso.</p>
+              </div>
+              <div class="info-block">
+                <strong>Uso responsável</strong>
+                <p>O preenchimento deste formulário não concede acesso automaticamente. A solicitação representa uma etapa de análise institucional e deve observar finalidade, necessidade e proteção de dados.</p>
+              </div>
+              <div class="info-block">
+                <strong>Fluxo previsto</strong>
+                <p>Solicitação enviada → liberação ou devolutiva institucional.</p>
+              </div>
+            </aside>
+
+            <section class="panel">
+              <form class="access-form" id="access-request-form">
+                <div class="form-section">
+                  <div class="form-section-title"><span>1</span>Identificação do solicitante</div>
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="nome">Nome completo</label>
+                      <input class="input" id="nome" name="nome" type="text" placeholder="Informe seu nome completo" required />
+                    </div>
+                    <div class="field">
+                      <label for="email">E-mail institucional</label>
+                      <input class="input" id="email" name="email" type="email" placeholder="nome@recife.pe.gov.br" required />
+                    </div>
+                    <div class="field">
+                      <label for="cargo">Cargo ou função</label>
+                      <input class="input" id="cargo" name="cargo" type="text" placeholder="Ex: Analista, gestor, coordenador" required />
+                    </div>
+                    <div class="field">
+                      <label for="unidade">Unidade ou setor</label>
+                      <input class="input" id="unidade" name="unidade" type="text" placeholder="Informe sua unidade de atuação" required />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title"><span>2</span>Vínculo e área de interesse</div>
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="secretaria">Secretaria Executiva</label>
+                      <select class="input" id="secretaria" name="secretaria" required>
+                        <option value="">Selecione</option>
+                        <option>SEVS - Secretaria Executiva de Vigilância em Saúde</option>
+                        <option>SEAB - Secretaria Executiva de Atenção Básica</option>
+                        <option>SEAF - Secretaria Executiva de Administração e Finanças</option>
+                        <option>SECOGE - Secretaria Executiva de Coordenação Geral</option>
+                        <option>SEGTES - Secretaria Executiva de Gestão do Trabalho e Educação na Saúde</option>
+                        <option>SEINFRA - Secretaria Executiva de Infraestrutura</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <label class="check-card">
+                    <input type="checkbox" name="responsabilidade" required />
+                    <span>Declaro que a solicitação está vinculada à finalidade institucional informada e que o uso dos dados deverá respeitar as regras de governança, segurança e LGPD.</span>
+                  </label>
+                  <div class="notice-card">
+                    Esta tela é um protótipo estático. O envio abaixo simula o registro da solicitação no navegador e não substitui o fluxo institucional real.
+                  </div>
+                </div>
+
+                <div class="inline-actions">
+                  <a class="btn btn-secondary" href="index.html">← Voltar ao portal</a>
+                  <button class="btn btn-primary" type="submit">Enviar solicitação</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="toast" class="status-badge ok hidden" style="position: fixed; right: 18px; bottom: 18px; z-index: 120;"></div>
+
+    <script src="js/app.js"></script>
+    <script>
+      document.getElementById('access-request-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const request = {
+          nome: formData.get('nome'),
+          email: formData.get('email'),
+          secretaria: formData.get('secretaria'),
+          enviadaEm: new Date().toISOString()
+        };
+        const requests = JSON.parse(localStorage.getItem('portal-access-requests') || '[]');
+        requests.unshift(request);
+        localStorage.setItem('portal-access-requests', JSON.stringify(requests));
+        showToast('Solicitação registrada neste protótipo.', 'ok');
+        event.currentTarget.reset();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal de Dados SESAU - SEVS</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body data-secretaria="SEVS">
+    <div class="top-accent"></div>
+
+    <header class="site-header">
+      <div class="container">
+        <div class="brand">
+          <div class="brand-mark">DB</div>
+          <div class="brand-copy">
+            <div class="brand-title">Portal de Dados SESAU</div>
+            <div class="brand-sub">SEVS</div>
+          </div>
+        </div>
+
+        <nav class="site-nav" aria-label="Menu da secretaria">
+          <div class="nav-links">
+            <a class="nav-link" href="index.html">Início</a>
+            <a class="nav-link active" href="sevs.html">SEVS</a>
+          </div>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" aria-label="Notificações">🔔<span class="notification-dot"></span></button>
+          <div class="profile">
+            <div class="avatar">AB</div>
+            <div class="profile-copy">
+              <div class="profile-name">Ana B.</div>
+              <div class="profile-role">Administrador</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegação lateral">
+        <div class="nav-group">
+          <div class="nav-label">Ambiente</div>
+          <button class="nav-item active" type="button">Sistemas de Informação</button>
+          <button class="nav-item" type="button">Catálogo de Dados</button>
+          <button class="nav-item" type="button">Dicionário de Dados</button>
+          <button class="nav-item" type="button">Carga Manual</button>
+          <button class="nav-item" type="button">Criar Dataset</button>
+          <button class="nav-item" type="button">Consultar Datasets</button>
+        </div>
+        <div class="sidecard">
+          <strong>Política institucional</strong>
+          <span>Nem todo dado disponível significa acesso irrestrito. O uso deve respeitar perfil, finalidade e governança.</span>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="content">
+          <div class="page-header">
+            <div>
+              <div class="eyebrow">Secretaria executiva</div>
+              <h1 id="secretaria-name">Carregando...</h1>
+              <p class="lead" id="secretaria-description"></p>
+            </div>
+            <div class="dataset-actions">
+              <a class="btn btn-secondary" href="index.html">← Voltar</a>
+              <button class="btn btn-primary" type="button">+ Solicitar acesso</button>
+            </div>
+          </div>
+
+          <div class="stat-grid" data-summary></div>
+
+          <section class="section">
+            <div class="page-header">
+              <div>
+                <div class="eyebrow">Sistemas de Informação</div>
+                <h2>Sistemas vinculados</h2>
+              </div>
+            </div>
+            <div class="card-grid" data-sistemas></div>
+          </section>
+
+          <section class="section">
+            <div class="page-header">
+              <div>
+                <div class="eyebrow">Catálogo de Dados</div>
+                <h2>Conjuntos de dados disponíveis</h2>
+              </div>
+            </div>
+            <form class="filter-bar" data-catalog-filters>
+              <input class="input" type="search" data-filter-search placeholder="Pesquisar por nome, descrição, sistema ou responsável" />
+              <select class="input" data-filter-system>
+                <option value="">Sistema</option>
+                <option value="SIM">SIM</option>
+                <option value="SINASC">SINASC</option>
+                <option value="SINAN">SINAN</option>
+                <option value="REDCap">REDCap</option>
+                <option value="e-SUS APS">e-SUS APS</option>
+                <option value="SISAB">SISAB</option>
+                <option value="SIAF">SIAF</option>
+                <option value="Painel Integrado">Painel Integrado</option>
+              </select>
+              <select class="input" data-filter-format>
+                <option value="">Formato</option>
+                <option value="CSV">CSV</option>
+                <option value="XLS">XLS</option>
+                <option value="API">API</option>
+                <option value="Power BI">Power BI</option>
+                <option value="Qlik">Qlik</option>
+              </select>
+              <select class="input" data-filter-status>
+                <option value="">Status</option>
+                <option value="Disponível">Disponível</option>
+                <option value="Restrito">Restrito</option>
+                <option value="Em análise">Em análise</option>
+              </select>
+            </form>
+            <div class="dataset-list" data-catalog-list></div>
+          </section>
+
+          <section class="section">
+            <div class="page-header">
+              <div>
+                <div class="eyebrow">Dicionário de Dados</div>
+                <h2>Campos e conceitos relevantes</h2>
+              </div>
+            </div>
+            <div class="info-stack" data-dictionary-list></div>
+          </section>
+
+          <section class="section">
+            <div class="page-header">
+              <div>
+                <div class="eyebrow">Carga Manual</div>
+                <h2>Representação do fluxo de carga</h2>
+              </div>
+            </div>
+            <div class="panel" id="manual-upload-form">
+              <div class="upload-box">
+                <div class="file-meta">
+                  <input type="file" class="input" aria-label="Selecionar arquivo" />
+                  <span class="status-badge warning" data-upload-status>Arquivo ainda não validado.</span>
+                </div>
+                <div class="file-meta">
+                  <span class="text-muted" data-file-name>Arquivo selecionado: nenhum</span>
+                </div>
+                <div class="dataset-actions">
+                  <button class="btn btn-secondary" type="button" data-validate-upload>Validar arquivo</button>
+                  <button class="btn btn-primary" type="button" data-process-upload>Processar</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="page-header">
+              <div>
+                <div class="eyebrow">Criar conjunto de dados</div>
+                <h2>Fluxo de publicação simulada</h2>
+              </div>
+            </div>
+            <div class="panel">
+              <form id="dataset-builder">
+                <div class="wizard-steps">
+                  <span class="step-indicator active">1. Identificação</span>
+                  <span class="step-indicator">2. Variáveis</span>
+                  <span class="step-indicator">3. Período</span>
+                  <span class="step-indicator">4. Disponibilização</span>
+                  <span class="step-indicator">5. Governança</span>
+                  <span class="step-indicator">6. Revisão</span>
+                </div>
+
+                <div class="wizard-step active">
+                  <div class="form-grid">
+                    <div class="field"><label for="datasetNome">Nome</label><input id="datasetNome" class="input" name="datasetNome" placeholder="Ex: Indicadores de monitoramento" /></div>
+                    <div class="field"><label for="datasetSecretaria">Secretaria</label><input id="datasetSecretaria" class="input" name="datasetSecretaria" value="SEVS" /></div>
+                    <div class="field"><label for="datasetSistema">Sistema</label><select id="datasetSistema" class="input" name="datasetSistema"><option>SIM</option><option>SINASC</option><option>SINAN</option><option>REDCap</option></select></div>
+                    <div class="field"><label for="datasetResponsavel">Responsável</label><input id="datasetResponsavel" class="input" name="datasetResponsavel" value="Ana Beatriz Santos" /></div>
+                    <div class="field field--full"><label for="datasetDescricao">Descrição</label><textarea id="datasetDescricao" class="input" name="datasetDescricao" placeholder="Descreva o conteúdo e a finalidade do conjunto."></textarea></div>
+                  </div>
+                </div>
+
+                <div class="wizard-step">
+                  <div class="form-grid">
+                    <div class="field field--full"><label>Variáveis</label><input class="input" name="variaveis" type="number" value="10" /></div>
+                    <div class="field field--full"><label>Lista de variáveis</label><input class="input" value="Município, Data de notificação, Idade, Resultado, Evolução" /></div>
+                  </div>
+                </div>
+
+                <div class="wizard-step">
+                  <div class="form-grid">
+                    <div class="field"><label for="periodoInicio">Período inicial</label><input id="periodoInicio" class="input" name="periodoInicio" type="text" value="2024" /></div>
+                    <div class="field"><label for="periodoFim">Período final</label><input id="periodoFim" class="input" name="periodoFim" type="text" value="2025" /></div>
+                    <div class="field"><label for="frequencia">Frequência</label><select id="frequencia" class="input" name="frequencia"><option>Mensal</option><option>Semanal</option><option>Diária</option></select></div>
+                    <div class="field"><label for="ultimaCarga">Última carga</label><input id="ultimaCarga" class="input" name="ultimaCarga" type="date" value="2025-06-30" /></div>
+                  </div>
+                </div>
+
+                <div class="wizard-step">
+                  <div class="form-grid">
+                    <div class="field"><label>Formato</label><select class="input" name="formato"><option>CSV</option><option>XLS</option><option>API</option><option>Power BI</option><option>Qlik</option></select></div>
+                    <div class="field"><label>Disponibilização</label><select class="input" name="disponibilizacao"><option>Portal</option><option>E-mail</option><option>Conector BI</option><option>Banco de Dados</option></select></div>
+                  </div>
+                </div>
+
+                <div class="wizard-step">
+                  <div class="form-grid">
+                    <div class="field"><label>Nível de acesso</label><select class="input" name="nivelAcesso"><option>Uso institucional</option><option>Autorização por demanda</option><option>Restrito</option></select></div>
+                    <div class="field"><label>Finalidade</label><input class="input" name="finalidade" value="Monitoramento e gestão" /></div>
+                    <div class="field"><label>Necessidade de aprovação</label><select class="input" name="aprovacao"><option>Sim</option><option>Não</option></select></div>
+                    <div class="field"><label>Classificação</label><select class="input" name="classificacao"><option>Interno</option><option>Restrito</option><option>Confidencial</option></select></div>
+                  </div>
+                </div>
+
+                <div class="wizard-step">
+                  <div id="dataset-summary"></div>
+                </div>
+
+                <div class="inline-actions">
+                  <div class="dataset-actions">
+                    <button class="btn btn-secondary" type="button" data-prev-step>Voltar</button>
+                    <button class="btn btn-secondary" type="button" data-next-step>Próximo</button>
+                    <button class="btn btn-primary" type="button" data-publish>Publicar conjunto</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="page-header">
+              <div>
+                <div class="eyebrow">Consultar conjuntos</div>
+                <h2>Histórico de consultas</h2>
+              </div>
+            </div>
+            <div class="table-card">
+              <div class="table-head">
+                <div>Consulta</div>
+                <div>Dataset</div>
+                <div>Período</div>
+                <div>Registros</div>
+                <div>Status</div>
+              </div>
+              <div data-consultas></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div id="dataset-modal" class="modal hidden"></div>
+
+    <script src="data/secretarias.js"></script>
+    <script src="data/datasets.js"></script>
+    <script src="data/dicionario.js"></script>
+    <script src="data/usuarios.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/secretaria.js"></script>
+    <script src="js/criar-dataset.js"></script>
+    <script src="js/carga.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const key = document.body.dataset.secretaria || 'SEVS';
+        const secret = window.SECRETARIAS[key];
+        if (secret) {
+          document.getElementById('secretaria-name').textContent = secret.nome;
+          document.getElementById('secretaria-description').textContent = secret.descricao;
+        }
+      });
+    </script>
+  </body>
+</html>

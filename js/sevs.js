@@ -304,55 +304,137 @@ function sevsInitDatasetBuilder() {
   const summary = document.getElementById('dataset-summary');
   const systemSelect = form.querySelector('[name="datasetSistema"]');
   const sinanFields = Array.from(form.querySelectorAll('[data-sinan-fields]'));
-  const simFields = Array.from(form.querySelectorAll('[data-sim-fields]'));
+  const legacySimFields = Array.from(form.querySelectorAll('[data-sim-fields]'));
   const standardVariables = Array.from(form.querySelectorAll('[data-standard-variables]'));
+  const configuredFields = form.querySelector('[data-configured-system-fields]');
+  const validationMessage = form.querySelector('[data-step-validation]');
+  const datasetRules = {
+    SIM: {
+      groups: [
+        { title: 'Selecione o tipo de data', name: 'simTipoData', mode: 'single', options: ['Data de Cadastro', 'Data do Óbito'] },
+        { title: 'Escolha as opções para gerar o conjunto de dados', name: 'simTipoConjunto', mode: 'single', options: ['DO', 'DO + Óbito Materno', 'DO + Óbito Infantil'] },
+        { title: 'Selecione as dimensões do conjunto de dados', name: 'simDimensoes', mode: 'multiple', options: ['Bairro', 'Logradouro', 'Município', 'Cartório', 'Regional', 'Estabelecimento de Saúde', 'Distrito'] }
+      ],
+      dependentGroups: [
+        { parentValue: 'DO + Óbito Materno', title: 'Tipo de informação sobre óbito materno', name: 'simObitoMaterno', options: ['Óbitos maternos declarados', 'Óbitos de mulher em idade fértil totais'] },
+        { parentValue: 'DO + Óbito Infantil', title: 'Tipo de óbito infantil', name: 'simObitoInfantil', options: ['Óbitos fetais', 'Óbitos neonatais precoces — 0 a 6 dias', 'Óbitos neonatais tardios — 7 a 27 dias', 'Óbitos pós-neonatais — 28 a 364 dias', 'Óbitos infantis com idade ignorada — código 400', 'Todos os óbitos infantis — soma dos filtros 2 + 3 + 4 + 5', 'Óbitos de crianças de 1 a 4 anos de idade', 'Todos os óbitos — soma dos filtros 1 + 2 + 3 + 4 + 5 + 7'] }
+      ]
+    },
+    SINASC: {
+      groups: [
+        { title: 'Selecione o tipo de data', name: 'sinascTipoData', mode: 'single', options: ['Data de Cadastro', 'Data do Nascimento'] },
+        { title: 'Escolha as opções para gerar o conjunto de dados', name: 'sinascVariaveis', mode: 'multiple', options: ['DN', 'Bairro', 'Cartório', 'Logradouro', 'Município', 'Estabelecimento de Saúde', 'Distrito', 'Regional'] }
+      ],
+      dependentGroups: []
+    }
+  };
   let currentStep = 0;
+
+  const renderControlGroup = ({ title, name, mode, options }) => {
+    const controlType = mode === 'single' ? 'radio' : 'checkbox';
+    const controls = options.map((option, index) => {
+      const id = `${name}-${index}`;
+      return `<label class="check-card" for="${id}"><input id="${id}" type="${controlType}" name="${name}" value="${option}" /><span>${option}</span></label>`;
+    }).join('');
+    return `
+      <div class="field field--full selection-group" role="group" aria-labelledby="${name}-title">
+        <div class="form-section-title" id="${name}-title">${title}</div>
+        <div class="checkbox-grid">${controls}</div>
+      </div>
+    `;
+  };
+
+  const renderConfiguredFields = system => {
+    const rules = datasetRules[system];
+    if (!rules) return '';
+    const groups = rules.groups.map(renderControlGroup).join('');
+    const dependentGroups = rules.dependentGroups.map(group => `
+      <div class="field--full hidden" data-dependent-field="${group.parentValue}">
+        ${renderControlGroup({ ...group, mode: 'single' })}
+      </div>
+    `).join('');
+    return groups + dependentGroups;
+  };
+
+  const clearValidation = () => {
+    validationMessage.textContent = '';
+    validationMessage.classList.add('hidden');
+  };
+
+  const updateDependentFields = () => {
+    const selectedType = form.querySelector('[name="simTipoConjunto"]:checked')?.value;
+    configuredFields.querySelectorAll('[data-dependent-field]').forEach(field => {
+      const isActive = field.dataset.dependentField === selectedType;
+      field.classList.toggle('hidden', !isActive);
+      field.querySelectorAll('input').forEach(input => {
+        if (!isActive) input.checked = false;
+        input.disabled = !isActive;
+      });
+    });
+  };
 
   const updateSpecialSystemFields = () => {
     const isSinan = systemSelect?.value === 'SINAN';
-    const isSim = systemSelect?.value === 'SIM';
+    const isConfiguredSystem = Boolean(datasetRules[systemSelect?.value]);
     sinanFields.forEach(field => {
       field.classList.toggle('hidden', !isSinan);
       field.querySelectorAll('select, input').forEach(input => {
         input.disabled = !isSinan;
       });
     });
-    simFields.forEach(field => {
-      field.classList.toggle('hidden', !isSim);
+    legacySimFields.forEach(field => {
+      field.classList.add('hidden');
       field.querySelectorAll('select, input').forEach(input => {
-        input.disabled = !isSim;
+        input.disabled = true;
       });
     });
     standardVariables.forEach(field => {
-      field.classList.toggle('hidden', isSinan || isSim);
+      field.classList.toggle('hidden', isSinan || isConfiguredSystem);
       field.querySelectorAll('select, input').forEach(input => {
-        input.disabled = isSinan || isSim;
+        input.disabled = isSinan || isConfiguredSystem;
       });
     });
+    configuredFields.innerHTML = renderConfiguredFields(systemSelect?.value);
+    configuredFields.classList.toggle('hidden', !isConfiguredSystem);
+    updateDependentFields();
+    clearValidation();
   };
 
   const buildSummary = () => {
     const data = new FormData(form);
+    const system = data.get('datasetSistema');
     const selectedVariables = data.getAll('variaveisSinan');
     const selectedAgravos = data.getAll('agravos');
-    const selectedSimFields = Array.from(form.querySelectorAll('[data-sim-fields] input, [data-sim-fields] select'))
-      .map(input => {
-        const value = data.get(input.name);
-        if (!value) return '';
-        const label = form.querySelector(`label[for="${input.id}"]`)?.textContent || input.name;
-        return `${label}: ${value}`;
-      })
-      .filter(Boolean);
-    const selectedFields = selectedVariables.length
-      ? selectedVariables
-      : selectedSimFields.length
-        ? selectedSimFields
-        : [data.get('listaVariaveis')].filter(Boolean);
+    const selectedStandardField = [data.get('listaVariaveis')].filter(Boolean);
+    const fieldMarkup = (label, value) => `<div class="kv"><div class="kv-label">${label}</div><div class="kv-value">${value || 'Não informado'}</div></div>`;
+    let selectionMarkup;
+
+    if (system === 'SIM') {
+      const datasetType = data.get('simTipoConjunto');
+      const maternalFilter = datasetType === 'DO + Óbito Materno' ? data.get('simObitoMaterno') : '';
+      const infantFilter = datasetType === 'DO + Óbito Infantil' ? data.get('simObitoInfantil') : '';
+      selectionMarkup = `
+        ${fieldMarkup('Tipo de data', data.get('simTipoData'))}
+        ${fieldMarkup('Tipo de conjunto', datasetType)}
+        ${maternalFilter ? fieldMarkup('Filtro de óbito materno', maternalFilter) : ''}
+        ${infantFilter ? fieldMarkup('Filtro de óbito infantil', infantFilter) : ''}
+        <div class="kv field--full"><div class="kv-label">Dimensões</div><div class="kv-value">${data.getAll('simDimensoes').join(', ') || 'Nenhuma dimensão selecionada'}</div></div>
+      `;
+    } else if (system === 'SINASC') {
+      selectionMarkup = `
+        ${fieldMarkup('Tipo de data', data.get('sinascTipoData'))}
+        <div class="kv field--full"><div class="kv-label">Variáveis</div><div class="kv-value">${data.getAll('sinascVariaveis').join(', ') || 'Nenhuma variável selecionada'}</div></div>
+      `;
+    } else {
+      const fields = selectedVariables.length ? selectedVariables : selectedStandardField;
+      selectionMarkup = `<div class="kv field--full"><div class="kv-label">Campos selecionados</div><div class="kv-value">${fields.join(', ') || 'Não informado'}</div></div>`;
+    }
+
     return `
       <div class="detail-grid">
         <div class="kv"><div class="kv-label">Nome</div><div class="kv-value">${data.get('datasetNome') || 'Não informado'}</div></div>
-        <div class="kv"><div class="kv-label">Sistema</div><div class="kv-value">${data.get('datasetSistema') || 'SINAN'}</div></div>
-        <div class="kv field--full"><div class="kv-label">Campos selecionados</div><div class="kv-value">${selectedFields.join(', ') || 'Não informado'}</div></div>
+        <div class="kv"><div class="kv-label">Sistema</div><div class="kv-value">${system || 'SINAN'}</div></div>
+        ${selectionMarkup}
         ${selectedAgravos.length ? `<div class="kv field--full"><div class="kv-label">Agravos selecionados</div><div class="kv-value">${selectedAgravos.join(', ')}</div></div>` : ''}
         <div class="kv"><div class="kv-label">Responsável</div><div class="kv-value">${data.get('datasetResponsavel') || 'Não informado'}</div></div>
         <div class="kv field--full"><div class="kv-label">Descrição</div><div class="kv-value">${data.get('datasetDescricao') || 'Sem descrição'}</div></div>
@@ -373,9 +455,41 @@ function sevsInitDatasetBuilder() {
     summary.innerHTML = buildSummary();
   };
 
-  systemSelect?.addEventListener('change', updateSpecialSystemFields);
+  const validateCurrentStep = () => {
+    if (currentStep !== 1) return true;
+    const data = new FormData(form);
+    const system = data.get('datasetSistema');
+    let message = '';
+
+    if (system === 'SIM' || system === 'SINASC') {
+      if (!data.get(system === 'SIM' ? 'simTipoData' : 'sinascTipoData')) {
+        message = 'Selecione o tipo de data para continuar.';
+      } else if (system === 'SIM' && !data.get('simTipoConjunto')) {
+        message = 'Selecione o tipo de conjunto de dados para continuar.';
+      } else if (system === 'SIM' && data.get('simTipoConjunto') === 'DO + Óbito Materno' && !data.get('simObitoMaterno')) {
+        message = 'Selecione uma opção de óbito materno para continuar.';
+      } else if (system === 'SIM' && data.get('simTipoConjunto') === 'DO + Óbito Infantil' && !data.get('simObitoInfantil')) {
+        message = 'Selecione uma opção de óbito infantil para continuar.';
+      }
+    }
+
+    validationMessage.textContent = message;
+    validationMessage.classList.toggle('hidden', !message);
+    return !message;
+  };
+
+  systemSelect?.addEventListener('change', () => {
+    updateSpecialSystemFields();
+    summary.innerHTML = buildSummary();
+  });
+  form.addEventListener('change', event => {
+    if (event.target.name === 'simTipoConjunto') updateDependentFields();
+    clearValidation();
+    summary.innerHTML = buildSummary();
+  });
   nextBtn.addEventListener('click', () => {
     if (currentStep < steps.length - 1) {
+      if (!validateCurrentStep()) return;
       currentStep += 1;
       render();
     }
@@ -390,18 +504,37 @@ function sevsInitDatasetBuilder() {
 
   saveBtn.addEventListener('click', () => {
     const data = new FormData(form);
+    const system = data.get('datasetSistema') || 'SINAN';
+    const isConfiguredSystem = Boolean(datasetRules[system]);
+    const selectedFields = system === 'SIM'
+      ? data.getAll('simDimensoes')
+      : system === 'SINASC'
+        ? data.getAll('sinascVariaveis')
+        : window.getDatasetSelection(form);
+    const systemConfiguration = system === 'SIM'
+      ? {
+          tipoData: data.get('simTipoData') || '',
+          tipoConjunto: data.get('simTipoConjunto') || '',
+          filtroObitoMaterno: data.get('simObitoMaterno') || '',
+          filtroObitoInfantil: data.get('simObitoInfantil') || '',
+          dimensoes: data.getAll('simDimensoes')
+        }
+      : system === 'SINASC'
+        ? { tipoData: data.get('sinascTipoData') || '', variaveis: data.getAll('sinascVariaveis') }
+        : null;
     const dataset = {
       id: `draft-${Date.now()}`,
       nome: data.get('datasetNome') || 'Novo conjunto',
       descricao: data.get('datasetDescricao') || 'Conjunto criado no protótipo.',
-      sistema: data.get('datasetSistema') || 'SINAN',
+      sistema: system,
       secretaria: 'SEVS',
       periodo: window.getPeriodLabel(form),
       atualizacao: data.get('frequencia') || 'Mensal',
-      variaveis: data.getAll('variaveisSinan').length || Number(data.get('variaveis') || 5),
+      variaveis: isConfiguredSystem ? selectedFields.length : data.getAll('variaveisSinan').length || Number(data.get('variaveis') || 5),
       agravos: data.getAll('agravos'),
-      variaveisSelecionadas: data.getAll('variaveisSinan'),
-      camposSelecionados: window.getDatasetSelection(form),
+      variaveisSelecionadas: system === 'SINASC' ? data.getAll('sinascVariaveis') : data.getAll('variaveisSinan'),
+      camposSelecionados: selectedFields,
+      configuracao: systemConfiguration,
       filtrosSim: {
         anoInicio: data.get('anoObitoInicio') || '',
         anoFim: data.get('anoObitoFim') || '',

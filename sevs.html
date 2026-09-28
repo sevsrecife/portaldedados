@@ -195,6 +195,7 @@
 
                 <div class="wizard-step">
                   <div class="form-grid">
+                    <div class="field field--full hidden" data-configured-system-fields></div>
                     <div class="field field--full" data-standard-variables><label>Variáveis</label><input class="input" name="variaveis" type="number" value="10" /></div>
                     <div class="field field--full" data-standard-variables><label for="listaVariaveis">Lista de variáveis</label><select id="listaVariaveis" class="input" name="listaVariaveis"><option>Município</option><option>Data de notificação</option><option>Idade</option><option>Resultado</option><option>Evolução</option></select></div>
                     <div class="field field--full hidden" data-sinan-fields>
@@ -373,6 +374,7 @@
                     <button class="btn btn-secondary" type="button" data-next-step>Próximo</button>
                     <button class="btn btn-primary" type="button" data-publish>Publicar conjunto</button>
                   </div>
+                  <p class="text-muted hidden" role="alert" aria-live="polite" data-step-validation></p>
                 </div>
               </form>
             </div>
